@@ -33,6 +33,8 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] `cache` - Manage API response cache
 - [x] `bulk` - Bulk operations on resources
 - [x] `export` - Export resources to files
+- [x] `clone` - Clone/duplicate resources
+- [x] `template` - Render and validate templates
 
 ### Resources Implemented
 
@@ -52,8 +54,14 @@ This document tracks implemented features and planned work for the Python dtctl 
 | **edgeconnect** | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - |
 | **user** | ✅ | ✅ | - | - | - | - | - | - | - |
 | **group** | ✅ | ✅ | - | - | - | - | - | - | - |
+| **policy** | ✅ | ✅ | - | - | - | - | - | - | - |
+| **binding** | ✅ | ✅ | - | - | - | - | - | - | - |
+| **boundary** | ✅ | ✅ | - | - | - | - | - | - | - |
+| **effective-permissions** | ✅ | - | - | - | - | - | - | - | - |
 | **analyzer** | ✅ | ✅ | - | - | - | - | ✅ | - | - |
 | **copilot** | ✅ | - | - | - | - | - | ✅ | - | - |
+| **limits** | ✅ | - | - | - | - | - | - | - | - |
+| **environments** | ✅ | - | - | - | - | - | - | - | - |
 
 ### DQL Query Features
 - [x] Inline queries: `dtctl query "fetch logs | limit 10"`
@@ -98,6 +106,33 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] Automatic token refresh
 - [x] Token caching with expiry buffer
 - [x] Alternative to bearer tokens for automation
+
+### Clone Features
+- [x] Clone workflows (`dtctl clone workflow <id> --name "New Name"`)
+- [x] Clone dashboards (`dtctl clone dashboard <id> --name "New Name"`)
+- [x] Clone notebooks (`dtctl clone notebook <id> --name "New Name"`)
+- [x] Clone SLOs (`dtctl clone slo <id> --name "New Name"`)
+- [x] Options for privacy, deployment state
+
+### Template Features
+- [x] Render templates (`dtctl template render -f template.yaml --set key=value`)
+- [x] Validate templates (`dtctl template validate -f template.yaml`)
+- [x] List variables (`dtctl template variables -f template.yaml`)
+- [x] Apply templates (`dtctl template apply -f template.yaml --set key=value`)
+
+### Additional GET Commands
+- [x] Get limits (`dtctl get limits`)
+- [x] Get environments (`dtctl get environments`)
+
+### IAM Features
+- [x] List policies (`dtctl get policies`)
+- [x] Describe policy (`dtctl describe policy <uuid>`)
+- [x] List bindings (`dtctl get bindings`)
+- [x] Describe binding (`dtctl describe binding --policy <uuid> --group <uuid>`)
+- [x] List boundaries (`dtctl get boundaries`)
+- [x] Describe boundary (`dtctl describe boundary --policy <uuid> --group <uuid>`)
+- [x] Get effective permissions (`dtctl get effective-permissions <id> --user|--group`)
+- [x] Support for account and environment level scoping
 
 ### Phase 5: Advanced CLI Features (Remaining)
 - [ ] Label selectors (`-l env=prod`)

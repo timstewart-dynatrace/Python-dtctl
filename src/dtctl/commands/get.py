@@ -21,6 +21,7 @@ from dtctl.output import (
     app_columns,
     user_columns,
     group_columns,
+    environment_columns,
 )
 
 app = typer.Typer(no_args_is_help=True)
@@ -449,3 +450,195 @@ def get_openpipelines(
     else:
         results = handler.list()
         printer.print(results)
+
+
+@app.command("limits")
+def get_limits(
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Get account limits and quotas.
+
+    Shows API rate limits, resource quotas, and usage limits
+    for the current Dynatrace environment.
+    """
+    from dtctl.resources.limits import LimitsHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = LimitsHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    results = handler.get_limits()
+    printer.print(results)
+
+
+@app.command("environments")
+@app.command("env")
+def get_environments(
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List available environments from configuration.
+
+    Shows all configured Dynatrace environments (contexts)
+    and their connection status.
+    """
+    config = load_config()
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    environments = []
+    current_ctx = config.current_context
+
+    for ctx_entry in config.contexts:
+        ctx = ctx_entry.context
+        env_info = {
+            "name": ctx_entry.name,
+            "environment": ctx.environment,
+            "current": ctx_entry.name == current_ctx,
+            "auth_type": "oauth" if ctx.uses_oauth else "token",
+        }
+        environments.append(env_info)
+
+    if not environments:
+        from rich.console import Console
+        Console().print("[yellow]No environments configured. Use 'dtctl config set-context' to add one.[/yellow]")
+        return
+
+    printer.print(environments, environment_columns())
+
+
+@app.command("policies")
+def get_policies(
+    policy_id: Optional[str] = typer.Argument(None, help="Policy UUID"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List or get IAM policies.
+
+    Shows policies that define permissions for groups.
+    """
+    from dtctl.resources.iam import IAMHandler
+    from dtctl.output import policy_columns
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    if policy_id:
+        result = handler.get_policy(policy_id, level_type=level, level_id=level_id)
+        printer.print(result)
+    else:
+        results = handler.list_policies(level_type=level, level_id=level_id, name=name)
+        printer.print(results, policy_columns())
+
+
+@app.command("bindings")
+def get_bindings(
+    group: Optional[str] = typer.Option(None, "--group", "-g", help="Filter by group UUID"),
+    policy: Optional[str] = typer.Option(None, "--policy", "-p", help="Filter by policy UUID"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List policy bindings.
+
+    Shows which policies are bound to which groups.
+    """
+    from dtctl.resources.iam import IAMHandler
+    from dtctl.output import binding_columns
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    results = handler.list_bindings(
+        level_type=level,
+        level_id=level_id,
+        group_uuid=group,
+        policy_uuid=policy,
+    )
+    printer.print(results, binding_columns())
+
+
+@app.command("boundaries")
+def get_boundaries(
+    boundary_id: Optional[str] = typer.Argument(None, help="Boundary UUID"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List or get policy boundaries.
+
+    Boundaries restrict the scope of policy permissions.
+    """
+    from dtctl.resources.iam import IAMHandler
+    from dtctl.output import boundary_columns
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    if boundary_id:
+        result = handler.get_boundary(boundary_id, level_type=level, level_id=level_id)
+        printer.print(result)
+    else:
+        results = handler.list_boundaries(level_type=level, level_id=level_id, name=name)
+        printer.print(results, boundary_columns())
+
+
+@app.command("effective-permissions")
+def get_effective_permissions(
+    identifier: str = typer.Argument(..., help="User ID/email or group UUID"),
+    user: bool = typer.Option(False, "--user", "-u", help="Get permissions for user"),
+    group: bool = typer.Option(False, "--group", "-g", help="Get permissions for group"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Get effective permissions for a user or group.
+
+    Calculates all permissions by evaluating bound policies.
+
+    Examples:
+        dtctl get effective-permissions user@example.com --user
+        dtctl get effective-permissions <group-uuid> --group
+    """
+    from dtctl.resources.iam import IAMHandler
+
+    if not user and not group:
+        from rich.console import Console
+        Console().print("[red]Error:[/red] Specify --user or --group")
+        raise typer.Exit(1)
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    if user:
+        result = handler.get_effective_permissions_for_user(
+            identifier, level_type=level, level_id=level_id
+        )
+    else:
+        result = handler.get_effective_permissions_for_group(
+            identifier, level_type=level, level_id=level_id
+        )
+
+    printer.print(result)

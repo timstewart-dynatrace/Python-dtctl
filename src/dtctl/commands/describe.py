@@ -273,3 +273,196 @@ def describe_analyzer(
     fmt = output or get_output_format()
     printer = Printer(format=fmt, plain=is_plain_mode())
     printer.print(analyzer)
+
+
+@app.command("policy")
+def describe_policy(
+    policy_id: str = typer.Argument(..., help="Policy UUID"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Show detailed policy information including statement query."""
+    from dtctl.resources.iam import IAMHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    policy = handler.get_policy(policy_id, level_type=level, level_id=level_id)
+
+    fmt = output or get_output_format()
+    if fmt in (OutputFormat.JSON, OutputFormat.YAML):
+        printer = Printer(format=fmt, plain=is_plain_mode())
+        printer.print(policy)
+        return
+
+    console.print(Panel(f"[bold]Policy: {policy.get('name', 'N/A')}[/bold]"))
+    console.print(f"UUID: {policy.get('uuid', 'N/A')}")
+    console.print(f"Description: {policy.get('description', 'N/A')}")
+    console.print(f"Level Type: {policy.get('levelType', 'N/A')}")
+    console.print(f"Level ID: {policy.get('levelId', 'N/A')}")
+
+    statement = policy.get("statementQuery", "")
+    if statement:
+        console.print("\n[bold]Statement Query:[/bold]")
+        console.print(statement)
+
+
+@app.command("binding")
+def describe_binding(
+    policy_id: str = typer.Option(..., "--policy", "-p", help="Policy UUID"),
+    group_id: str = typer.Option(..., "--group", "-g", help="Group UUID"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Show detailed policy binding information."""
+    from dtctl.resources.iam import IAMHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    binding = handler.get_binding(
+        policy_uuid=policy_id,
+        group_uuid=group_id,
+        level_type=level,
+        level_id=level_id,
+    )
+
+    fmt = output or get_output_format()
+    if fmt in (OutputFormat.JSON, OutputFormat.YAML):
+        printer = Printer(format=fmt, plain=is_plain_mode())
+        printer.print(binding)
+        return
+
+    console.print(Panel("[bold]Policy Binding[/bold]"))
+    console.print(f"Policy UUID: {binding.get('policyUuid', 'N/A')}")
+    console.print(f"Group UUID: {binding.get('groupUuid', 'N/A')}")
+    console.print(f"Level Type: {binding.get('levelType', 'N/A')}")
+    console.print(f"Level ID: {binding.get('levelId', 'N/A')}")
+
+    # Show parameters if present
+    params = binding.get("parameters", {})
+    if params:
+        console.print("\n[bold]Parameters:[/bold]")
+        for key, value in params.items():
+            console.print(f"  {key}: {value}")
+
+    # Show metadata if present
+    metadata = binding.get("metadata", {})
+    if metadata:
+        console.print("\n[bold]Metadata:[/bold]")
+        for key, value in metadata.items():
+            console.print(f"  {key}: {value}")
+
+
+@app.command("boundary")
+def describe_boundary(
+    boundary_id: str = typer.Argument(..., help="Boundary UUID"),
+    level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
+    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Show detailed policy boundary information."""
+    from dtctl.resources.iam import IAMHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    boundary = handler.get_boundary(boundary_id, level_type=level, level_id=level_id)
+
+    fmt = output or get_output_format()
+    if fmt in (OutputFormat.JSON, OutputFormat.YAML):
+        printer = Printer(format=fmt, plain=is_plain_mode())
+        printer.print(boundary)
+        return
+
+    console.print(Panel(f"[bold]Boundary: {boundary.get('name', 'N/A')}[/bold]"))
+    console.print(f"UUID: {boundary.get('uuid', 'N/A')}")
+    console.print(f"Description: {boundary.get('description', 'N/A')}")
+
+    bound_query = boundary.get("boundQuery", "")
+    if bound_query:
+        console.print("\n[bold]Bound Query:[/bold]")
+        console.print(bound_query)
+
+
+@app.command("user")
+def describe_user(
+    user_id: str = typer.Argument(..., help="User ID or email"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Show detailed user information including group memberships."""
+    from dtctl.resources.iam import IAMHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    user = handler.get_user(user_id)
+
+    fmt = output or get_output_format()
+    if fmt in (OutputFormat.JSON, OutputFormat.YAML):
+        printer = Printer(format=fmt, plain=is_plain_mode())
+        printer.print(user)
+        return
+
+    console.print(Panel(f"[bold]User: {user.get('email', 'N/A')}[/bold]"))
+    console.print(f"UID: {user.get('uid', 'N/A')}")
+    console.print(f"Name: {user.get('name', 'N/A')}")
+    console.print(f"Email: {user.get('email', 'N/A')}")
+
+    groups = user.get("groups", [])
+    if groups:
+        console.print("\n[bold]Groups:[/bold]")
+        for group in groups:
+            if isinstance(group, dict):
+                console.print(f"  - {group.get('name', 'N/A')} ({group.get('uuid', 'N/A')})")
+            else:
+                console.print(f"  - {group}")
+
+
+@app.command("group")
+def describe_group(
+    group_id: str = typer.Argument(..., help="Group UUID"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Show detailed group information including members."""
+    from dtctl.resources.iam import IAMHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = IAMHandler(client)
+
+    group = handler.get_group(group_id)
+    members = handler.get_group_members(group_id)
+
+    fmt = output or get_output_format()
+    if fmt in (OutputFormat.JSON, OutputFormat.YAML):
+        printer = Printer(format=fmt, plain=is_plain_mode())
+        printer.print({"group": group, "members": members})
+        return
+
+    console.print(Panel(f"[bold]Group: {group.get('name', 'N/A')}[/bold]"))
+    console.print(f"UUID: {group.get('uuid', 'N/A')}")
+    console.print(f"Description: {group.get('description', 'N/A')}")
+    console.print(f"Owner: {group.get('owner', 'N/A')}")
+
+    if members:
+        console.print(f"\n[bold]Members ({len(members)}):[/bold]")
+        table = Table(show_header=True)
+        table.add_column("Email")
+        table.add_column("Name")
+        table.add_column("UID")
+        for member in members[:20]:  # Limit to first 20
+            table.add_row(
+                member.get("email", "N/A"),
+                member.get("name", "N/A"),
+                member.get("uid", "N/A"),
+            )
+        console.print(table)
+        if len(members) > 20:
+            console.print(f"... and {len(members) - 20} more members")

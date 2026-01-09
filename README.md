@@ -185,6 +185,73 @@ dtctl cache clear
 dtctl cache clear --prefix workflows
 ```
 
+### Clone resources
+
+```bash
+# Clone a workflow with a new name
+dtctl clone workflow my-workflow --name "My Workflow Copy"
+
+# Clone a dashboard
+dtctl clone dashboard my-dashboard --name "Dashboard Copy"
+
+# Clone and keep deployed state
+dtctl clone workflow my-wf --name "Copy" --keep-deployed
+```
+
+### Template operations
+
+```bash
+# Render a template with variables
+dtctl template render -f workflow.yaml --set name=my-workflow
+
+# Validate template syntax
+dtctl template validate -f workflow.yaml
+
+# List variables in a template
+dtctl template variables -f config.yaml
+
+# Render and apply in one step
+dtctl template apply -f workflow.yaml --set env=prod
+```
+
+### View limits and environments
+
+```bash
+# View account limits and quotas
+dtctl get limits
+
+# List configured environments
+dtctl get environments
+```
+
+### IAM operations
+
+```bash
+# List IAM policies
+dtctl get policies
+
+# Describe a policy
+dtctl describe policy <policy-uuid>
+
+# List policy bindings
+dtctl get bindings
+
+# Describe a binding
+dtctl describe binding --policy <policy-uuid> --group <group-uuid>
+
+# List permission boundaries
+dtctl get boundaries
+
+# Get effective permissions for a user
+dtctl get effective-permissions user@example.com --user
+
+# Get effective permissions for a group
+dtctl get effective-permissions <group-uuid> --group
+
+# Use environment-level scoping
+dtctl get policies --level environment --level-id abc12345
+```
+
 ## Commands
 
 | Command | Description |
@@ -204,6 +271,8 @@ dtctl cache clear --prefix workflows
 | `bulk` | Bulk operations on resources |
 | `export` | Export resources to files |
 | `cache` | Manage API response cache |
+| `clone` | Clone/duplicate resources |
+| `template` | Render and validate templates |
 
 ## Supported Resources
 
@@ -218,11 +287,17 @@ dtctl cache clear --prefix workflows
 - **Apps** (`apps`)
 - **Users** (`users`)
 - **Groups** (`groups`)
+- **Policies** (`policies`)
+- **Bindings** (`bindings`)
+- **Boundaries** (`boundaries`)
+- **Effective Permissions** (`effective-permissions`)
 - **Notifications** (`notifications`)
 - **Analyzers** (`analyzers`)
 - **CoPilot Skills** (`copilot-skills`)
 - **EdgeConnect** (`edgeconnects`, `ec`)
 - **OpenPipeline** (`openpipelines`, `op`)
+- **Limits** (`limits`)
+- **Environments** (`environments`, `env`)
 
 ## Global Options
 

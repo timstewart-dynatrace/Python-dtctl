@@ -301,3 +301,56 @@ def group_columns() -> list[Column]:
         Column("description", "DESCRIPTION"),
         Column("owner", "OWNER", wide_only=True),
     ]
+
+
+def environment_columns() -> list[Column]:
+    """Column definitions for environment/context resources."""
+    return [
+        Column("name", "NAME"),
+        Column("environment", "ENVIRONMENT"),
+        Column("current", "CURRENT", formatter=lambda x: "*" if x else ""),
+        Column("auth_type", "AUTH TYPE"),
+    ]
+
+
+def limit_columns() -> list[Column]:
+    """Column definitions for limit resources."""
+    return [
+        Column("name", "LIMIT"),
+        Column("current", "CURRENT"),
+        Column("max", "MAX"),
+        Column("unit", "UNIT"),
+        Column("percentage", "USAGE %", formatter=lambda x: f"{x:.1f}%" if x is not None else ""),
+    ]
+
+
+def policy_columns() -> list[Column]:
+    """Column definitions for IAM policy resources."""
+    return [
+        Column("uuid", "UUID"),
+        Column("name", "NAME"),
+        Column("levelType", "LEVEL"),
+        Column("levelId", "LEVEL ID", wide_only=True),
+        Column("description", "DESCRIPTION", wide_only=True),
+    ]
+
+
+def binding_columns() -> list[Column]:
+    """Column definitions for IAM binding resources."""
+    return [
+        Column("policyUuid", "POLICY UUID"),
+        Column("groupUuid", "GROUP UUID"),
+        Column("levelType", "LEVEL"),
+        Column("levelId", "LEVEL ID", wide_only=True),
+        Column("metadata", "METADATA", wide_only=True, formatter=lambda x: str(x)[:50] if x else ""),
+    ]
+
+
+def boundary_columns() -> list[Column]:
+    """Column definitions for IAM boundary resources."""
+    return [
+        Column("policyUuid", "POLICY UUID"),
+        Column("groupUuid", "GROUP UUID"),
+        Column("levelType", "LEVEL"),
+        Column("levelId", "LEVEL ID", wide_only=True),
+    ]

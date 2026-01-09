@@ -48,7 +48,7 @@ dev = [
 ]
 
 [project.scripts]
-dtctl = "dtctl.cli:main"
+dtctl = "dtctl.cli:main_cli"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/python-dtctl"

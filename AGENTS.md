@@ -26,7 +26,7 @@ src/dtctl/
 ├── output.py            # Output formatters (Rich tables, JSON, YAML)
 ├── commands/            # CLI command modules
 │   ├── config.py        # Configuration management
-│   ├── get.py           # List/retrieve resources
+│   ├── get.py           # List/retrieve resources (incl. limits, environments)
 │   ├── describe.py      # Detailed resource info
 │   ├── create.py        # Create from manifests
 │   ├── delete.py        # Delete resources
@@ -35,7 +35,12 @@ src/dtctl/
 │   ├── query.py         # DQL query execution
 │   ├── execute.py       # Workflow/analyzer execution
 │   ├── logs.py          # Execution logs
-│   └── share.py         # Document sharing
+│   ├── share.py         # Document sharing
+│   ├── cache.py         # Cache management commands
+│   ├── bulk.py          # Bulk operations (apply, delete, execute)
+│   ├── export.py        # Export resources to files
+│   ├── clone.py         # Clone/duplicate resources
+│   └── template.py      # Template rendering and validation
 ├── resources/           # API resource handlers
 │   ├── base.py          # Base handler classes (CRUDHandler)
 │   ├── workflow.py      # Workflows & executions
@@ -44,17 +49,20 @@ src/dtctl/
 │   ├── settings.py      # Settings objects & schemas
 │   ├── bucket.py        # Grail storage buckets
 │   ├── app.py           # App Engine apps
-│   ├── iam.py           # Users & groups (read-only)
+│   ├── iam.py           # Users, groups, policies, bindings, boundaries (read-only)
 │   ├── notification.py  # Event notifications
 │   ├── analyzer.py      # Davis AI analyzers
 │   ├── copilot.py       # Davis CoPilot
 │   ├── openpipeline.py  # OpenPipeline configurations
 │   ├── edgeconnect.py   # EdgeConnect configurations
+│   ├── limits.py        # Account limits & quotas
 │   └── query.py         # DQL query execution
 └── utils/               # Utility modules
     ├── template.py      # Jinja2 template rendering
     ├── format.py        # YAML/JSON conversion
-    └── resolver.py      # Name-to-ID resolution
+    ├── resolver.py      # Name-to-ID resolution
+    ├── cache.py         # In-memory caching with TTL
+    └── auth.py          # OAuth2 authentication (optional)
 ```
 
 ### Core Components
@@ -71,6 +79,7 @@ src/dtctl/
 - Multi-context support (like kubectl)
 - XDG Base Directory compliance (~/.config/dtctl/config)
 - Token storage and retrieval
+- Optional OAuth2 authentication support
 - Environment variable overrides (DTCTL_CONTEXT, DTCTL_OUTPUT, DTCTL_VERBOSE)
 
 **Output (output.py)**: Pluggable formatters:
@@ -94,6 +103,10 @@ src/dtctl/
 **Resolver Pattern**: `ResourceResolver` converts human-readable names to API IDs.
 
 **Template Pattern**: Jinja2 templates with `--set key=value` substitution for manifests and queries.
+
+**Caching Pattern**: In-memory singleton cache with TTL for reducing API calls. The `@cached` decorator enables transparent caching on handler methods.
+
+**Clone Pattern**: Resource handlers support cloning by fetching, modifying, and creating new resources with updated names/properties.
 
 ## Development Conventions
 
@@ -181,6 +194,10 @@ pip install -e ".[dev]"    # With dev dependencies
 dtctl --help
 dtctl config view
 dtctl get workflows
+dtctl get limits
+dtctl get environments
+dtctl clone workflow my-wf --name "Copy"
+dtctl template render -f manifest.yaml --set env=prod
 ```
 
 ### Format Code
@@ -188,3 +205,50 @@ dtctl get workflows
 ruff format src/
 ruff check src/ --fix
 ```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `config` | Manage configuration contexts and credentials |
+| `get` | List or get resources (workflows, dashboards, slos, limits, environments, etc.) |
+| `describe` | Show detailed resource information |
+| `create` | Create resources from manifests |
+| `delete` | Delete resources |
+| `apply` | Apply configuration (create or update) |
+| `edit` | Edit resources in your editor |
+| `query` | Execute DQL queries |
+| `exec` | Execute workflows, analyzers, copilot |
+| `logs` | View execution logs |
+| `share` | Share documents |
+| `unshare` | Remove document sharing |
+| `bulk` | Bulk operations on resources |
+| `export` | Export resources to files |
+| `cache` | Manage API response cache |
+| `clone` | Clone/duplicate resources |
+| `template` | Render and validate templates |
+
+## Supported Resources
+
+- **Workflows** (`workflows`, `wf`)
+- **Executions** (`executions`, `exec`)
+- **Dashboards** (`dashboards`, `dash`)
+- **Notebooks** (`notebooks`, `nb`)
+- **SLOs** (`slos`, `slo`)
+- **Settings** (`settings`)
+- **Settings Schemas** (`schemas`)
+- **Buckets** (`buckets`)
+- **Apps** (`apps`)
+- **Users** (`users`)
+- **Groups** (`groups`)
+- **Policies** (`policies`)
+- **Bindings** (`bindings`)
+- **Boundaries** (`boundaries`)
+- **Effective Permissions** (`effective-permissions`)
+- **Notifications** (`notifications`)
+- **Analyzers** (`analyzers`)
+- **CoPilot Skills** (`copilot-skills`)
+- **EdgeConnect** (`edgeconnects`, `ec`)
+- **OpenPipeline** (`openpipelines`, `op`)
+- **Limits** (`limits`)
+- **Environments** (`environments`, `env`)

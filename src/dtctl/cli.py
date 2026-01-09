@@ -27,6 +27,8 @@ from dtctl.commands import share as share_cmd
 from dtctl.commands import cache as cache_cmd
 from dtctl.commands import bulk as bulk_cmd
 from dtctl.commands import export as export_cmd
+from dtctl.commands import clone as clone_cmd
+from dtctl.commands import template as template_cmd
 from dtctl.output import OutputFormat
 
 # Create console for rich output
@@ -152,6 +154,8 @@ app.add_typer(share_cmd.app, name="share", help="Share documents with users")
 app.add_typer(cache_cmd.app, name="cache", help="Manage API response cache")
 app.add_typer(bulk_cmd.app, name="bulk", help="Bulk operations on resources")
 app.add_typer(export_cmd.app, name="export", help="Export resources to files")
+app.add_typer(clone_cmd.app, name="clone", help="Clone/duplicate resources")
+app.add_typer(template_cmd.app, name="template", help="Render and validate templates")
 
 
 @app.command()
