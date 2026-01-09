@@ -212,6 +212,10 @@ def create_client_from_config(
 ) -> Client:
     """Create a client from configuration.
 
+    Supports both bearer token authentication (default) and OAuth2 (optional).
+    OAuth2 requires the optional auth module and is useful for automated systems
+    that need self-refreshing tokens.
+
     Args:
         config: Configuration object (loads from file if not provided)
         context_name: Override context name (uses current-context if not provided)
@@ -236,6 +240,36 @@ def create_client_from_config(
     context = config.get_context(ctx_name)
     if not context:
         raise RuntimeError(f"Context '{ctx_name}' not found in configuration.")
+
+    # Check if using OAuth2 (optional feature)
+    if context.uses_oauth:
+        try:
+            from dtctl.utils.auth import TokenManager
+        except ImportError:
+            raise RuntimeError(
+                "OAuth2 authentication requires the auth module. "
+                "This context is configured for OAuth2 but the module is not available."
+            )
+
+        token_manager = TokenManager(
+            client_id=context.oauth_client_id,
+            client_secret=context.oauth_client_secret,
+            resource_urn=context.oauth_resource_urn or f"urn:dtenvironment:{context.environment}",
+        )
+        token = token_manager.get_token()
+
+        return Client(
+            base_url=context.environment,
+            token=token,
+            verbose=verbose,
+        )
+
+    # Standard bearer token authentication
+    if not context.token_ref:
+        raise RuntimeError(
+            "No authentication configured for this context. "
+            "Use 'dtctl config set-context' with --token-ref or OAuth2 credentials."
+        )
 
     token = config.get_token(context.token_ref)
     if not token:

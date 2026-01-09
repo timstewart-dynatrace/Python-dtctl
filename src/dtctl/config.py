@@ -16,12 +16,25 @@ from pydantic import BaseModel, Field
 
 
 class Context(BaseModel):
-    """A named context containing environment URL and token reference."""
+    """A named context containing environment URL and token reference.
+
+    Supports both bearer token authentication (default) and optional OAuth2.
+    For OAuth2, set oauth_client_id and oauth_client_secret instead of token_ref.
+    """
 
     environment: str = Field(description="Dynatrace environment URL")
-    token_ref: str = Field(alias="token-ref", description="Reference to a named token")
+    token_ref: str = Field(default="", alias="token-ref", description="Reference to a named token")
+    # Optional OAuth2 fields (alternative to token_ref)
+    oauth_client_id: str = Field(default="", alias="oauth-client-id", description="OAuth2 client ID")
+    oauth_client_secret: str = Field(default="", alias="oauth-client-secret", description="OAuth2 client secret")
+    oauth_resource_urn: str = Field(default="", alias="oauth-resource-urn", description="OAuth2 resource URN")
 
     model_config = {"populate_by_name": True}
+
+    @property
+    def uses_oauth(self) -> bool:
+        """Check if this context uses OAuth2 authentication."""
+        return bool(self.oauth_client_id and self.oauth_client_secret)
 
 
 class NamedContext(BaseModel):
@@ -89,8 +102,20 @@ class Config(BaseModel):
         name: str,
         environment: str | None = None,
         token_ref: str | None = None,
+        oauth_client_id: str | None = None,
+        oauth_client_secret: str | None = None,
+        oauth_resource_urn: str | None = None,
     ) -> None:
-        """Create or update a context."""
+        """Create or update a context.
+
+        Args:
+            name: Context name
+            environment: Dynatrace environment URL
+            token_ref: Reference to a named token (for bearer auth)
+            oauth_client_id: OAuth2 client ID (optional, alternative to token_ref)
+            oauth_client_secret: OAuth2 client secret (optional)
+            oauth_resource_urn: OAuth2 resource URN (optional)
+        """
         existing = None
         for i, ctx in enumerate(self.contexts):
             if ctx.name == name:
@@ -103,13 +128,34 @@ class Config(BaseModel):
                 ctx.environment = environment
             if token_ref:
                 ctx.token_ref = token_ref
+            if oauth_client_id:
+                ctx.oauth_client_id = oauth_client_id
+            if oauth_client_secret:
+                ctx.oauth_client_secret = oauth_client_secret
+            if oauth_resource_urn:
+                ctx.oauth_resource_urn = oauth_resource_urn
         else:
-            if not environment or not token_ref:
-                raise ValueError("New context requires both environment and token-ref")
+            if not environment:
+                raise ValueError("New context requires environment")
+            # Either token_ref OR oauth credentials required
+            if not token_ref and not (oauth_client_id and oauth_client_secret):
+                raise ValueError(
+                    "New context requires either token-ref or OAuth2 credentials "
+                    "(oauth-client-id and oauth-client-secret)"
+                )
+            context_data: dict[str, str] = {"environment": environment}
+            if token_ref:
+                context_data["token-ref"] = token_ref
+            if oauth_client_id:
+                context_data["oauth-client-id"] = oauth_client_id
+            if oauth_client_secret:
+                context_data["oauth-client-secret"] = oauth_client_secret
+            if oauth_resource_urn:
+                context_data["oauth-resource-urn"] = oauth_resource_urn
             self.contexts.append(
                 NamedContext(
                     name=name,
-                    context=Context(environment=environment, **{"token-ref": token_ref}),
+                    context=Context(**context_data),
                 )
             )
 

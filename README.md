@@ -12,6 +12,10 @@ A kubectl-inspired CLI for managing Dynatrace platform resources.
 - **Template support** - Use variables in manifests and queries
 - **Multiple output formats** - Table, JSON, YAML, CSV
 - **AI-friendly** - Plain mode for automation and AI agents
+- **Bulk operations** - Apply, delete, or execute multiple resources from files
+- **Export capabilities** - Export resources and query results to files
+- **Caching** - In-memory cache to reduce API calls
+- **OAuth2 support** - Optional OAuth2 authentication for automation (in addition to bearer tokens)
 
 ## Installation
 
@@ -136,6 +140,51 @@ dtctl share dashboard my-dashboard --user user@example.com
 dtctl share notebook my-notebook --group group-uuid --access read-write
 ```
 
+### Bulk operations
+
+```bash
+# Apply multiple resources from a file
+dtctl bulk apply -f resources.yaml
+
+# Create multiple workflows
+dtctl bulk create-workflows -f workflows.yaml
+
+# Delete multiple resources
+dtctl bulk delete -f ids.csv --type workflow
+
+# Execute multiple workflows
+dtctl bulk exec-workflows -f workflows.csv
+```
+
+### Export resources
+
+```bash
+# Export all resources
+dtctl export all -o ./backup
+
+# Export specific resource types
+dtctl export all -i workflows,slos
+
+# Export a single workflow
+dtctl export workflow my-workflow -o workflow.yaml
+
+# Export query results
+dtctl export query-results "fetch logs | limit 100" -o results.csv
+```
+
+### Cache management
+
+```bash
+# View cache statistics
+dtctl cache stats
+
+# Clear all cache
+dtctl cache clear
+
+# Clear cache by prefix
+dtctl cache clear --prefix workflows
+```
+
 ## Commands
 
 | Command | Description |
@@ -152,6 +201,9 @@ dtctl share notebook my-notebook --group group-uuid --access read-write
 | `logs` | View execution logs |
 | `share` | Share documents |
 | `unshare` | Remove document sharing |
+| `bulk` | Bulk operations on resources |
+| `export` | Export resources to files |
+| `cache` | Manage API response cache |
 
 ## Supported Resources
 
@@ -218,6 +270,30 @@ preferences:
 - `DTCTL_OUTPUT` - Override output format
 - `DTCTL_VERBOSE` - Enable verbose mode
 - `EDITOR` - Editor for edit commands
+
+## OAuth2 Authentication (Optional)
+
+In addition to bearer tokens, dtctl supports OAuth2 client credentials for automated systems:
+
+```yaml
+# Context with OAuth2 (alternative to token-ref)
+contexts:
+  - name: automated
+    context:
+      environment: https://abc12345.apps.dynatrace.com
+      oauth-client-id: dt0s02.XXXXX
+      oauth-client-secret: dt0s02.XXXXX.YYYYY
+      oauth-resource-urn: urn:dtenvironment:abc12345
+```
+
+OAuth2 features:
+- Automatic token refresh before expiry
+- Token caching to minimize SSO calls
+- Required for some automation scenarios
+
+**Note:** Most users should use bearer tokens (platform tokens). OAuth2 is optional and primarily useful for service-to-service automation.
+
+**Functions NOT available without OAuth2:** None - all dtctl functions work with bearer tokens. OAuth2 is simply an alternative authentication method for automation scenarios where self-refreshing tokens are beneficial.
 
 ## Template Variables
 

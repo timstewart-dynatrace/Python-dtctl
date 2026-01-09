@@ -17,6 +17,8 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] Output formatters: JSON, YAML, table, wide, CSV
 - [x] Global flags: `--context`, `--output`, `--verbose`, `--dry-run`, `--plain`
 - [x] Shell completion (bash, zsh, fish)
+- [x] In-memory caching with TTL (reduce API calls)
+- [x] Optional OAuth2 authentication support
 
 ### Verbs Implemented
 - [x] `get` - List/retrieve resources
@@ -28,6 +30,9 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] `exec` - Execute workflows
 - [x] `logs` - View execution logs
 - [x] `query` - Execute DQL queries
+- [x] `cache` - Manage API response cache
+- [x] `bulk` - Bulk operations on resources
+- [x] `export` - Export resources to files
 
 ### Resources Implemented
 
@@ -68,12 +73,37 @@ This document tracks implemented features and planned work for the Python dtctl 
 
 ## Planned Features
 
-### Phase 5: Advanced CLI Features
+### Cache Features
+- [x] In-memory cache with configurable TTL
+- [x] Cache statistics (`dtctl cache stats`)
+- [x] Clear cache (`dtctl cache clear`)
+- [x] Prefix-based clearing (`dtctl cache clear --prefix workflows`)
+- [x] Expired entry cleanup (`dtctl cache clear --expired`)
+
+### Bulk Operations
+- [x] Bulk apply resources from file (`dtctl bulk apply -f resources.yaml`)
+- [x] Bulk delete resources (`dtctl bulk delete -f ids.csv --type workflow`)
+- [x] Bulk create workflows (`dtctl bulk create-workflows -f workflows.yaml`)
+- [x] Bulk execute workflows (`dtctl bulk exec-workflows -f workflows.csv`)
+
+### Export Features
+- [x] Export all resources (`dtctl export all`)
+- [x] Export by type (`dtctl export all -i workflows,slos`)
+- [x] Export single resource (`dtctl export workflow <id>`)
+- [x] Export query results (`dtctl export query-results "..." -o results.csv`)
+- [x] Multiple formats: JSON, YAML, CSV
+
+### OAuth2 Authentication (Optional)
+- [x] Client credentials flow support
+- [x] Automatic token refresh
+- [x] Token caching with expiry buffer
+- [x] Alternative to bearer tokens for automation
+
+### Phase 5: Advanced CLI Features (Remaining)
 - [ ] Label selectors (`-l env=prod`)
 - [ ] Watch mode (`--watch`)
 - [ ] Diff command
 - [ ] Patch command
-- [ ] Bulk operations
 - [ ] JSONPath output
 - [ ] Chart/sparkline output for timeseries
 
