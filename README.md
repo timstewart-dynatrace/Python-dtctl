@@ -1,5 +1,7 @@
 # dtctl - Dynatrace CLI
 
+> **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use. Always test in non-production environments first.
+
 A kubectl-inspired CLI for managing Dynatrace platform resources.
 
 ## Features
@@ -230,6 +232,16 @@ description: "Workflow for {{ environment }}"
 ```bash
 dtctl apply -f workflow.yaml --set workflow_name="My Workflow" --set environment=prod
 ```
+
+## Disclaimer
+
+This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project provided "as-is" without warranty of any kind. **Use at your own risk.**
+
+- This is not official Dynatrace software
+- No support is provided by Dynatrace
+- The authors assume no liability for any issues arising from its use
+- Always test thoroughly in non-production environments before use
+- Review all operations before executing them against production systems
 
 ## License
 

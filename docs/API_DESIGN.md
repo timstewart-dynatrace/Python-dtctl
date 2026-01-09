@@ -1,5 +1,7 @@
 # dtctl API Design
 
+> **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use. Always test in non-production environments first.
+
 A kubectl-inspired CLI tool for managing Dynatrace platform resources.
 
 ## Design Principles

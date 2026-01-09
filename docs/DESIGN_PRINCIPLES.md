@@ -1,5 +1,7 @@
 # Project Manifesto: dtctl Design Guidelines
 
+> **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use. Always test in non-production environments first.
+
 ## Core Philosophy
 
 **"Kubectl for Dynatrace"**: Leverage existing DevOps muscle memory. If a user knows kubectl, they should intuitively know how to use dtctl.

@@ -32,7 +32,10 @@ console = Console()
 # Create the main Typer app
 app = typer.Typer(
     name="dtctl",
-    help="A kubectl-inspired CLI for managing Dynatrace platform resources.",
+    help="""A kubectl-inspired CLI for managing Dynatrace platform resources.
+
+[yellow]DISCLAIMER:[/yellow] This tool is NOT produced, endorsed, or supported by Dynatrace.
+It is an independent, community-driven project. Use at your own risk.""",
     add_completion=True,
     no_args_is_help=True,
     rich_markup_mode="rich",
@@ -104,6 +107,9 @@ def main(
     ),
 ) -> None:
     """dtctl - A kubectl-inspired CLI for managing Dynatrace platform resources.
+
+    DISCLAIMER: This tool is NOT produced, endorsed, or supported by Dynatrace.
+    It is an independent, community-driven project. Use at your own risk.
 
     Use 'dtctl <command> --help' for more information about a command.
 

@@ -1,5 +1,7 @@
 # dtctl Quick Start Guide
 
+> **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use. Always test in non-production environments first.
+
 This guide provides practical examples for using dtctl to manage your Dynatrace environment.
 
 > **Note**: This guide assumes dtctl is already installed. If you need to install dtctl, see [INSTALLATION.md](INSTALLATION.md) first.

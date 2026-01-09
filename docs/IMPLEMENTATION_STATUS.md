@@ -1,5 +1,7 @@
 # dtctl Implementation Status
 
+> **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use. Always test in non-production environments first.
+
 ## Overview
 
 This document tracks implemented features and planned work for the Python dtctl CLI.
