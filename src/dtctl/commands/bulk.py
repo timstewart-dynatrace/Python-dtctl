@@ -109,7 +109,7 @@ def bulk_apply(
           title: "My Dashboard"
     """
     from dtctl.resources.workflow import WorkflowHandler
-    from dtctl.resources.document import DashboardHandler, NotebookHandler
+    from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
 
     if not file.exists():
@@ -139,8 +139,8 @@ def bulk_apply(
     # Map kinds to handlers
     handlers = {
         "workflow": WorkflowHandler(client),
-        "dashboard": DashboardHandler(client),
-        "notebook": NotebookHandler(client),
+        "dashboard": create_dashboard_handler(client),
+        "notebook": create_notebook_handler(client),
         "slo": SLOHandler(client),
     }
 
@@ -241,7 +241,7 @@ def bulk_delete(
         workflow-456
     """
     from dtctl.resources.workflow import WorkflowHandler
-    from dtctl.resources.document import DashboardHandler, NotebookHandler
+    from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
 
     if not file.exists():
@@ -264,8 +264,8 @@ def bulk_delete(
     # Map types to handlers
     handlers = {
         "workflow": WorkflowHandler(client),
-        "dashboard": DashboardHandler(client),
-        "notebook": NotebookHandler(client),
+        "dashboard": create_dashboard_handler(client),
+        "notebook": create_notebook_handler(client),
         "slo": SLOHandler(client),
     }
 

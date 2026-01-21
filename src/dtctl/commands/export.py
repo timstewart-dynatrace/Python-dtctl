@@ -92,7 +92,7 @@ def export_all(
         dtctl export all -i workflows,slos        # Only export workflows and SLOs
     """
     from dtctl.resources.workflow import WorkflowHandler
-    from dtctl.resources.document import DashboardHandler, NotebookHandler
+    from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
     from dtctl.resources.bucket import BucketHandler
 
@@ -144,8 +144,8 @@ def export_all(
             # Dashboards
             if "dashboards" in exports_to_run:
                 task = progress.add_task("Exporting dashboards...", total=1)
-                handler = DashboardHandler(client)
-                data = handler.list()
+                dash_handler = create_dashboard_handler(client)
+                data = dash_handler.list()
                 file_path = export_dir / f"{prefix}_dashboards.{ext}"
                 write_data(data, file_path, format)
                 exported_files.append(("dashboards", len(data), file_path))
@@ -154,8 +154,8 @@ def export_all(
             # Notebooks
             if "notebooks" in exports_to_run:
                 task = progress.add_task("Exporting notebooks...", total=1)
-                handler = NotebookHandler(client)
-                data = handler.list()
+                nb_handler = create_notebook_handler(client)
+                data = nb_handler.list()
                 file_path = export_dir / f"{prefix}_notebooks.{ext}"
                 write_data(data, file_path, format)
                 exported_files.append(("notebooks", len(data), file_path))
@@ -267,11 +267,11 @@ def export_dashboard(
     format: str = typer.Option("yaml", "--format", "-f", help="Output format (yaml, json)"),
 ) -> None:
     """Export a single dashboard with its details."""
-    from dtctl.resources.document import DashboardHandler
+    from dtctl.resources.document import create_dashboard_handler
 
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = DashboardHandler(client)
+    handler = create_dashboard_handler(client)
 
     try:
         # Get dashboard
