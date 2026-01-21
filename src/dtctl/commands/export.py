@@ -70,7 +70,7 @@ def write_data(data: list[dict[str, Any]], path: Path, format: str) -> None:
 @app.command("all")
 def export_all(
     output_dir: Path = typer.Option(".", "--output", "-o", help="Output directory"),
-    format: str = typer.Option("yaml", "--format", "-f", help="Output format (csv, json, yaml)"),
+    format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml, csv)"),
     prefix: str = typer.Option("dtctl", "--prefix", "-p", help="File name prefix"),
     include: Optional[str] = typer.Option(
         None,
@@ -198,7 +198,7 @@ def export_all(
 def export_workflow(
     identifier: str = typer.Argument(..., help="Workflow ID or title"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
-    format: str = typer.Option("yaml", "--format", "-f", help="Output format (yaml, json)"),
+    format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
     as_template: bool = typer.Option(False, "--as-template", "-t", help="Export as reusable template"),
 ) -> None:
     """Export a single workflow with its details.
@@ -212,8 +212,14 @@ def export_workflow(
     handler = WorkflowHandler(client)
 
     try:
+        # Resolve name to ID if needed
+        from dtctl.utils.resolver import ResourceResolver
+
+        resolver = ResourceResolver(client)
+        workflow_id = resolver.resolve_workflow(identifier)
+
         # Get workflow
-        workflow = handler.get(identifier)
+        workflow = handler.get(workflow_id)
 
         if not workflow:
             console.print(f"[red]Error:[/red] Workflow '{identifier}' not found.")
@@ -264,7 +270,7 @@ def export_workflow(
 def export_dashboard(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
-    format: str = typer.Option("yaml", "--format", "-f", help="Output format (yaml, json)"),
+    format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
 ) -> None:
     """Export a single dashboard with its details."""
     from dtctl.resources.document import create_dashboard_handler
@@ -274,8 +280,14 @@ def export_dashboard(
     handler = create_dashboard_handler(client)
 
     try:
+        # Resolve name to ID if needed
+        from dtctl.utils.resolver import ResourceResolver
+
+        resolver = ResourceResolver(client)
+        doc_id = resolver.resolve_document(identifier, "dashboard")
+
         # Get dashboard
-        dashboard = handler.get(identifier)
+        dashboard = handler.get(doc_id)
 
         if not dashboard:
             console.print(f"[red]Error:[/red] Dashboard '{identifier}' not found.")
@@ -313,7 +325,7 @@ def export_dashboard(
 def export_slo(
     identifier: str = typer.Argument(..., help="SLO ID or name"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
-    format: str = typer.Option("yaml", "--format", "-f", help="Output format (yaml, json)"),
+    format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
 ) -> None:
     """Export a single SLO with its details."""
     from dtctl.resources.slo import SLOHandler
@@ -323,8 +335,14 @@ def export_slo(
     handler = SLOHandler(client)
 
     try:
+        # Resolve name to ID if needed
+        from dtctl.utils.resolver import ResourceResolver
+
+        resolver = ResourceResolver(client)
+        slo_id = resolver.resolve_slo(identifier)
+
         # Get SLO
-        slo = handler.get(identifier)
+        slo = handler.get(slo_id)
 
         if not slo:
             console.print(f"[red]Error:[/red] SLO '{identifier}' not found.")

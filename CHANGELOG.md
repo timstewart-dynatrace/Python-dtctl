@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-01-21
+
+### Changed
+- Export commands now default to JSON format instead of YAML (matches Dynatrace GUI upload format)
+
+### Fixed
+- Export commands (`export workflow`, `export dashboard`, `export slo`) now support name resolution
+  - Accepts both IDs and names as identifiers
+- Fix `is_likely_id()` to be stricter about UUID detection
+  - Names with dots and dashes (like `dynatrace.kubernetes.kubernetes-cluster`) are no longer
+    incorrectly treated as IDs
+  - Only matches actual hex+dash UUID patterns
+
 ## [0.2.1] - 2026-01-21
 
 ### Added
@@ -95,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resources: workflows, executions, dashboards, notebooks, SLOs, settings, buckets, apps
 - Commands: get, describe, create, delete, edit, apply, exec, logs, query, share
 
-[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.1.0...v0.1.1

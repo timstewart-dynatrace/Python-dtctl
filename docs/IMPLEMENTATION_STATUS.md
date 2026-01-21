@@ -185,6 +185,7 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] Admin access flag for elevated permissions (`--admin`)
 
 ### Phase 5: Advanced CLI Features (Remaining)
+- [ ] Import command (`dtctl import -f resource.json`, `dtctl import -d ./exports/`)
 - [ ] Label selectors (`-l env=prod`)
 - [ ] Watch mode (`--watch`)
 - [ ] Diff command
