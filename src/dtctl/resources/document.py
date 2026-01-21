@@ -73,11 +73,11 @@ class DocumentHandler(ResourceHandler[Document]):
         filters = []
         effective_type = doc_type or self.doc_type
         if effective_type:
-            filters.append(f'type == "{effective_type}"')
+            filters.append(f"type=='{effective_type}'")
         if name_filter:
-            filters.append(f'name contains "{name_filter}"')
+            filters.append(f"name contains '{name_filter}'")
         if owner:
-            filters.append(f'owner == "{owner}"')
+            filters.append(f"owner=='{owner}'")
 
         if filters:
             query_params["filter"] = " and ".join(filters)
@@ -313,6 +313,38 @@ class DocumentHandler(ResourceHandler[Document]):
         response = self.client.get(f"{self.api_path}/{document_id}/shares")
         data = response.json()
         return data.get("shares", [])
+
+    def transfer_owner(
+        self,
+        document_id: str,
+        new_owner_id: str,
+        admin_access: bool = False,
+    ) -> bool:
+        """Transfer ownership of a document to another user.
+
+        Args:
+            document_id: Document ID
+            new_owner_id: User ID of the new owner
+            admin_access: Use admin access to transfer (requires document:documents:admin scope)
+
+        Returns:
+            True if ownership transferred successfully
+
+        Note:
+            The previous owner loses access to the document after transfer.
+            This operation can only be performed by the document owner
+            (or with admin_access=True if you have the admin scope).
+        """
+        params = {"admin-access": "true"} if admin_access else {}
+        try:
+            self.client.post(
+                f"{self.api_path}/{document_id}:transfer-owner",
+                json={"newOwnerId": new_owner_id},
+                params=params,
+            )
+            return True
+        except APIError:
+            return False
 
 
 def create_dashboard_handler(client: Client) -> DocumentHandler:

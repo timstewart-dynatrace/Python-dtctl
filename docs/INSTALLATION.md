@@ -81,39 +81,55 @@ Enable tab completion for faster workflows.
 ### Bash
 
 ```bash
-# Generate and install completion
-dtctl --install-completion bash
+# Install directly (adds to ~/.bashrc)
+dtctl completion --install bash
 
-# Or manually:
-dtctl completion bash > ~/.dtctl-complete.bash
-echo "source ~/.dtctl-complete.bash" >> ~/.bashrc
+# Or generate manually:
+dtctl completion bash > /etc/bash_completion.d/dtctl
+
+# Or add to your shell config:
+echo 'eval "$(dtctl completion bash)"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
 ### Zsh
 
 ```bash
-# Generate and install completion
-dtctl --install-completion zsh
+# Install directly
+dtctl completion --install zsh
 
-# Or manually:
-mkdir -p ~/.zsh/completions
-dtctl completion zsh > ~/.zsh/completions/_dtctl
-echo 'fpath=(~/.zsh/completions $fpath)' >> ~/.zshrc
-echo 'autoload -U compinit && compinit' >> ~/.zshrc
-rm -f ~/.zcompdump*
-source ~/.zshrc
+# Or generate and save to fpath:
+mkdir -p ~/.zfunc
+dtctl completion zsh > ~/.zfunc/_dtctl
+
+# Make sure ~/.zfunc is in your fpath (add to ~/.zshrc):
+fpath=(~/.zfunc $fpath)
+autoload -Uz compinit && compinit
 ```
 
 ### Fish
 
 ```bash
-# Generate and install completion
-dtctl --install-completion fish
+# Install directly
+dtctl completion --install fish
 
-# Or manually:
+# Or generate manually:
 mkdir -p ~/.config/fish/completions
 dtctl completion fish > ~/.config/fish/completions/dtctl.fish
+```
+
+### PowerShell
+
+```powershell
+# View the completion script
+dtctl completion powershell
+
+# Add to your PowerShell profile
+dtctl completion powershell | Out-String | Invoke-Expression
+
+# Or save and dot-source:
+dtctl completion powershell > dtctl-completion.ps1
+. ./dtctl-completion.ps1
 ```
 
 ## Updating dtctl

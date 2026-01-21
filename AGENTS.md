@@ -40,7 +40,13 @@ src/dtctl/
 │   ├── bulk.py          # Bulk operations (apply, delete, execute)
 │   ├── export.py        # Export resources to files
 │   ├── clone.py         # Clone/duplicate resources
-│   └── template.py      # Template rendering and validation
+│   ├── template.py      # Template rendering and validation
+│   ├── wait.py          # Wait for DQL conditions
+│   ├── history.py       # View version history
+│   ├── restore.py       # Restore to previous versions
+│   ├── auth.py          # Authentication operations
+│   ├── completion.py    # Shell completion generation
+│   └── chown.py         # Change ownership of documents
 ├── resources/           # API resource handlers
 │   ├── base.py          # Base handler classes (CRUDHandler)
 │   ├── workflow.py      # Workflows & executions
@@ -56,7 +62,8 @@ src/dtctl/
 │   ├── openpipeline.py  # OpenPipeline configurations
 │   ├── edgeconnect.py   # EdgeConnect configurations
 │   ├── limits.py        # Account limits & quotas
-│   └── query.py         # DQL query execution
+│   ├── query.py         # DQL query execution
+│   └── lookup.py        # Lookup tables
 └── utils/               # Utility modules
     ├── template.py      # Jinja2 template rendering
     ├── format.py        # YAML/JSON conversion
@@ -227,6 +234,12 @@ ruff check src/ --fix
 | `cache` | Manage API response cache |
 | `clone` | Clone/duplicate resources |
 | `template` | Render and validate templates |
+| `wait` | Wait for DQL query conditions |
+| `history` | View version history of resources |
+| `restore` | Restore resources to previous versions |
+| `auth` | Authentication operations (whoami, test) |
+| `completion` | Generate shell completions (bash, zsh, fish, powershell) |
+| `chown` | Change ownership of dashboards/notebooks |
 
 ## Supported Resources
 
@@ -252,3 +265,4 @@ ruff check src/ --fix
 - **OpenPipeline** (`openpipelines`, `op`)
 - **Limits** (`limits`)
 - **Environments** (`environments`, `env`)
+- **Lookup Tables** (`lookup-tables`, `lookups`, `lt`)

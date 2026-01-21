@@ -354,3 +354,14 @@ def boundary_columns() -> list[Column]:
         Column("levelType", "LEVEL"),
         Column("levelId", "LEVEL ID", wide_only=True),
     ]
+
+
+def lookup_table_columns() -> list[Column]:
+    """Column definitions for lookup table resources."""
+    return [
+        Column("id", "ID"),
+        Column("name", "NAME"),
+        Column("description", "DESCRIPTION"),
+        Column("rowCount", "ROWS", formatter=lambda x: str(x) if x is not None else "0"),
+        Column("owner", "OWNER", wide_only=True),
+    ]

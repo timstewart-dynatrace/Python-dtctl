@@ -35,33 +35,40 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] `export` - Export resources to files
 - [x] `clone` - Clone/duplicate resources
 - [x] `template` - Render and validate templates
+- [x] `wait` - Wait for DQL query conditions
+- [x] `history` - View version history
+- [x] `restore` - Restore to previous versions
+- [x] `auth` - Authentication operations (whoami, test)
+- [x] `completion` - Generate shell completions (bash, zsh, fish, powershell)
+- [x] `chown` - Change ownership of dashboards/notebooks
 
 ### Resources Implemented
 
-| Resource | get | describe | create | delete | edit | apply | exec | logs | share |
-|----------|-----|----------|--------|--------|------|-------|------|------|-------|
-| **workflow** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - |
-| **execution** | ✅ | ✅ | - | - | - | - | - | ✅ | - |
-| **dashboard** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ |
-| **notebook** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ |
-| **settings** | ✅ | ✅ | ✅ | ✅ | - | ✅ | - | - | - |
-| **settings-schema** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **slo** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | - |
-| **notification** | ✅ | ✅ | - | ✅ | - | - | - | - | - |
-| **bucket** | ✅ | ✅ | ✅ | ✅ | - | ✅ | - | - | - |
-| **openpipeline** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **app** | ✅ | ✅ | - | ✅ | - | - | - | - | - |
-| **edgeconnect** | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - |
-| **user** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **group** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **policy** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **binding** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **boundary** | ✅ | ✅ | - | - | - | - | - | - | - |
-| **effective-permissions** | ✅ | - | - | - | - | - | - | - | - |
-| **analyzer** | ✅ | ✅ | - | - | - | - | ✅ | - | - |
-| **copilot** | ✅ | - | - | - | - | - | ✅ | - | - |
-| **limits** | ✅ | - | - | - | - | - | - | - | - |
-| **environments** | ✅ | - | - | - | - | - | - | - | - |
+| Resource | get | describe | create | delete | edit | apply | exec | logs | share | chown |
+|----------|-----|----------|--------|--------|------|-------|------|------|-------|-------|
+| **workflow** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | - |
+| **execution** | ✅ | ✅ | - | - | - | - | - | ✅ | - | - |
+| **dashboard** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ | ✅ |
+| **notebook** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ | ✅ |
+| **settings** | ✅ | ✅ | ✅ | ✅ | - | ✅ | - | - | - | - |
+| **settings-schema** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **slo** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | - | - |
+| **notification** | ✅ | ✅ | - | ✅ | - | - | - | - | - | - |
+| **bucket** | ✅ | ✅ | ✅ | ✅ | - | ✅ | - | - | - | - |
+| **openpipeline** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **app** | ✅ | ✅ | - | ✅ | - | - | - | - | - | - |
+| **edgeconnect** | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - | - |
+| **user** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **group** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **policy** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **binding** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **boundary** | ✅ | ✅ | - | - | - | - | - | - | - | - |
+| **effective-permissions** | ✅ | - | - | - | - | - | - | - | - | - |
+| **analyzer** | ✅ | ✅ | - | - | - | - | ✅ | - | - | - |
+| **copilot** | ✅ | - | - | - | - | - | ✅ | - | - | - |
+| **limits** | ✅ | - | - | - | - | - | - | - | - | - |
+| **environments** | ✅ | - | - | - | - | - | - | - | - | - |
+| **lookup-table** | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - | - |
 
 ### DQL Query Features
 - [x] Inline queries: `dtctl query "fetch logs | limit 10"`
@@ -133,6 +140,48 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] Describe boundary (`dtctl describe boundary --policy <uuid> --group <uuid>`)
 - [x] Get effective permissions (`dtctl get effective-permissions <id> --user|--group`)
 - [x] Support for account and environment level scoping
+
+### Wait Command
+- [x] Wait for DQL conditions (`dtctl wait --condition any "fetch logs | limit 10"`)
+- [x] Conditions: `any`, `none`, `count`, `count-gte`, `count-gt`, `count-lte`, `count-lt`
+- [x] Timeout and interval options
+- [x] Max attempts limit
+- [x] Exponential backoff support
+- [x] Quiet mode for scripts
+
+### History & Restore
+- [x] View workflow versions (`dtctl history workflow <id>`)
+- [x] View dashboard snapshots (`dtctl history dashboard <id>`)
+- [x] View notebook snapshots (`dtctl history notebook <id>`)
+- [x] Restore workflow to version (`dtctl restore workflow <id> --version <n>`)
+- [x] Restore dashboard to snapshot (`dtctl restore dashboard <id> --snapshot <id>`)
+- [x] Restore notebook to snapshot (`dtctl restore notebook <id> --snapshot <id>`)
+- [x] Pre-restore snapshot creation option
+
+### Auth Command
+- [x] Show current identity (`dtctl auth whoami`)
+- [x] Test authentication (`dtctl auth test`)
+- [x] JSON output support
+
+### Shell Completion
+- [x] Bash completion script generation
+- [x] Zsh completion script generation
+- [x] Fish completion script generation
+- [x] PowerShell completion script generation
+- [x] Auto-install option (`--install`)
+
+### Lookup Tables
+- [x] List lookup tables (`dtctl get lookup-tables`)
+- [x] Describe lookup table (`dtctl describe lookup-table <id>`)
+- [x] Create from CSV (`dtctl create lookup-table -f data.csv --name <name>`)
+- [x] Delete lookup table (`dtctl delete lookup-table <id>`)
+- [x] Auto-detect CSV delimiter
+- [x] Get table data (`dtctl get lookup-tables <id> --data`)
+
+### Change Ownership
+- [x] Transfer dashboard ownership (`dtctl chown dashboard <id> --to <user-id>`)
+- [x] Transfer notebook ownership (`dtctl chown notebook <id> --to <user-id>`)
+- [x] Admin access flag for elevated permissions (`--admin`)
 
 ### Phase 5: Advanced CLI Features (Remaining)
 - [ ] Label selectors (`-l env=prod`)

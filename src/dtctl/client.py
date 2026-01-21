@@ -70,7 +70,7 @@ class Client:
             headers={
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
-                "User-Agent": "dtctl/0.1.0",
+                "User-Agent": "dtctl/0.1.1",
             },
         )
 

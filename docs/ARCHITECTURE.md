@@ -11,6 +11,7 @@ This document describes the Python-based architecture for `dtctl`, a kubectl-ins
 ### Core Language: Python 3.10+
 
 **Rationale:**
+
 - **Modern Python**: Type hints, dataclasses, and modern async support
 - **Cross-platform**: Works on Linux, macOS, Windows without compilation
 - **Rich ecosystem**: Excellent libraries for CLI development, HTTP clients, and data validation
@@ -22,6 +23,7 @@ This document describes the Python-based architecture for `dtctl`, a kubectl-ins
 **Repository**: https://github.com/tiangolo/typer
 
 **Features:**
+
 - Built on Click with automatic type inference
 - Automatic help generation from type hints
 - Shell completion (bash, zsh, fish, powershell)
@@ -30,6 +32,7 @@ This document describes the Python-based architecture for `dtctl`, a kubectl-ins
 - **Used by**: Many modern Python CLIs
 
 **Usage:**
+
 ```python
 import typer
 
@@ -50,12 +53,14 @@ def get(
 **Repository**: https://github.com/pydantic/pydantic
 
 **Features:**
+
 - Data validation using Python type hints
 - JSON/YAML serialization with aliases
 - Automatic documentation generation
 - Fast validation (Rust core in v2)
 
 **Usage:**
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -71,6 +76,7 @@ class Context(BaseModel):
 **Repository**: https://github.com/encode/httpx
 
 **Features:**
+
 - Modern, async-capable HTTP client
 - Connection pooling
 - Automatic retries (with tenacity)
@@ -79,6 +85,7 @@ class Context(BaseModel):
 - HTTP/2 support
 
 **Usage:**
+
 ```python
 import httpx
 
@@ -95,6 +102,7 @@ response = client.get("/api/v1/resources")
 **Repository**: https://github.com/Textualize/rich
 
 **Features:**
+
 - Beautiful terminal output
 - Tables with alignment and styling
 - Syntax highlighting
@@ -103,6 +111,7 @@ response = client.get("/api/v1/resources")
 - Color support with graceful degradation
 
 **Usage:**
+
 ```python
 from rich.console import Console
 from rich.table import Table
@@ -118,15 +127,18 @@ console.print(table)
 ### Configuration: PyYAML + platformdirs
 
 **Packages:**
+
 - `pyyaml` for YAML parsing
 - `platformdirs` for XDG-compliant paths
 
 **Features:**
+
 - YAML configuration files
 - Cross-platform config directories
 - Environment variable overrides
 
 **XDG Directory Structure:**
+
 - **Linux**: `$XDG_CONFIG_HOME/dtctl` (default: `~/.config/dtctl`)
 - **macOS**: `~/Library/Application Support/dtctl`
 - **Windows**: `%LOCALAPPDATA%\dtctl`
@@ -136,6 +148,7 @@ console.print(table)
 **Repository**: https://github.com/pallets/jinja
 
 **Features:**
+
 - Template variable substitution
 - Default values with filters
 - Familiar syntax: `{{ variable }}`
@@ -360,7 +373,7 @@ class Client:
 ```toml
 [project]
 name = "dtctl"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
     "typer[all]>=0.9.0",
@@ -432,15 +445,18 @@ mypy src/dtctl
 ## Security Considerations
 
 ### Token Storage
+
 - Tokens stored in config file with restricted permissions
 - Support for environment variable overrides
 - Consider keyring integration for future versions
 
 ### TLS Configuration
+
 - httpx uses system CA certificates by default
 - Support for custom CA certificates if needed
 
 ### Input Validation
+
 - Pydantic validates all configuration
 - Resource IDs validated before API calls
 

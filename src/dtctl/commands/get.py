@@ -642,3 +642,45 @@ def get_effective_permissions(
         )
 
     printer.print(result)
+
+
+@app.command("lookup-tables")
+@app.command("lookups")
+@app.command("lt")
+def get_lookup_tables(
+    table_id: Optional[str] = typer.Argument(None, help="Lookup table ID"),
+    data: bool = typer.Option(False, "--data", "-d", help="Show table data (rows)"),
+    limit: int = typer.Option(100, "--limit", "-n", help="Number of rows to show (with --data)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List or get lookup tables.
+
+    Lookup tables are used for data enrichment and mapping.
+
+    Examples:
+        dtctl get lookup-tables
+        dtctl get lt my-table-id
+        dtctl get lt my-table-id --data
+    """
+    from dtctl.resources.lookup import LookupTableHandler
+    from dtctl.output import lookup_table_columns
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = LookupTableHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    if table_id:
+        if data:
+            # Get table data (rows)
+            results = handler.get_data(table_id, limit=limit)
+            printer.print(results)
+        else:
+            # Get table metadata
+            result = handler.get(table_id)
+            printer.print(result)
+    else:
+        results = handler.list()
+        printer.print(results, lookup_table_columns())

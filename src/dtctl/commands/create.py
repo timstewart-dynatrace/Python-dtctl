@@ -316,3 +316,84 @@ def create_edgeconnect(
 
     console.print(f"[green]Created EdgeConnect:[/green] {result.get('id')}")
     printer.print(result)
+
+
+@app.command("lookup-table")
+@app.command("lt")
+def create_lookup_table(
+    file: Path = typer.Option(..., "--file", "-f", help="Path to CSV file or JSON/YAML manifest"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Table name (required for CSV)"),
+    description: Optional[str] = typer.Option(None, "--description", "-d", help="Table description"),
+    delimiter: Optional[str] = typer.Option(None, "--delimiter", help="CSV delimiter (auto-detected if not specified)"),
+    no_header: bool = typer.Option(False, "--no-header", help="CSV has no header row"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """Create a lookup table from a CSV or manifest file.
+
+    Lookup tables are used for data enrichment and mapping in DQL queries.
+
+    Examples:
+        # Create from CSV
+        dtctl create lookup-table -f data.csv --name my-table
+
+        # Create from CSV with custom delimiter
+        dtctl create lt -f data.tsv --name my-table --delimiter $'\\t'
+
+        # Create from JSON/YAML manifest
+        dtctl create lt -f table-def.yaml
+    """
+    from dtctl.resources.lookup import LookupTableHandler
+
+    if not file.exists():
+        console.print(f"[red]Error:[/red] File not found: {file}")
+        raise typer.Exit(1)
+
+    content = file.read_text()
+    file_ext = file.suffix.lower()
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = LookupTableHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    # Determine if CSV or manifest
+    if file_ext == ".csv" or (delimiter is not None):
+        # CSV mode
+        if not name:
+            console.print("[red]Error:[/red] --name is required when creating from CSV")
+            raise typer.Exit(1)
+
+        if is_dry_run():
+            console.print(f"[yellow]Dry run - would create lookup table: {name}[/yellow]")
+            console.print(f"  File: {file}")
+            console.print(f"  Delimiter: {delimiter or '(auto-detect)'}")
+            console.print(f"  Has header: {not no_header}")
+            return
+
+        result = handler.create_from_csv(
+            name=name,
+            csv_content=content,
+            description=description or "",
+            delimiter=delimiter,
+            has_header=not no_header,
+        )
+
+        console.print(f"[green]Created lookup table:[/green] {result.get('id')}")
+        printer.print(result)
+
+    else:
+        # JSON/YAML manifest mode
+        data = parse_content(content)
+
+        if is_dry_run():
+            console.print("[yellow]Dry run - would create lookup table:[/yellow]")
+            printer = Printer(format=OutputFormat.YAML, plain=is_plain_mode())
+            printer.print(data)
+            return
+
+        result = handler.create(data)
+
+        console.print(f"[green]Created lookup table:[/green] {result.get('id')}")
+        printer.print(result)

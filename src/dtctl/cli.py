@@ -29,6 +29,12 @@ from dtctl.commands import bulk as bulk_cmd
 from dtctl.commands import export as export_cmd
 from dtctl.commands import clone as clone_cmd
 from dtctl.commands import template as template_cmd
+from dtctl.commands import wait as wait_cmd
+from dtctl.commands import history as history_cmd
+from dtctl.commands import restore as restore_cmd
+from dtctl.commands import auth as auth_cmd
+from dtctl.commands import completion as completion_cmd
+from dtctl.commands import chown as chown_cmd
 from dtctl.output import OutputFormat
 
 # Create console for rich output
@@ -156,6 +162,12 @@ app.add_typer(bulk_cmd.app, name="bulk", help="Bulk operations on resources")
 app.add_typer(export_cmd.app, name="export", help="Export resources to files")
 app.add_typer(clone_cmd.app, name="clone", help="Clone/duplicate resources")
 app.add_typer(template_cmd.app, name="template", help="Render and validate templates")
+app.add_typer(wait_cmd.app, name="wait", help="Wait for DQL query conditions")
+app.add_typer(history_cmd.app, name="history", help="View version history of resources")
+app.add_typer(restore_cmd.app, name="restore", help="Restore resources to previous versions")
+app.add_typer(auth_cmd.app, name="auth", help="Authentication operations")
+app.add_typer(completion_cmd.app, name="completion", help="Generate shell completions")
+app.add_typer(chown_cmd.app, name="chown", help="Change ownership of resources")
 
 
 @app.command()
