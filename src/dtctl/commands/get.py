@@ -110,6 +110,32 @@ def get_executions(
         printer.print(results, execution_columns())
 
 
+@app.command("documents")
+@app.command("docs")
+def get_documents(
+    identifier: Optional[str] = typer.Argument(None, help="Document ID"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    doc_type: Optional[str] = typer.Option(None, "--type", "-t", help="Filter by type (dashboard, notebook)"),
+    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+) -> None:
+    """List or get all documents (dashboards and notebooks)."""
+    from dtctl.resources.document import DocumentHandler
+
+    config = load_config()
+    client = create_client_from_config(config, get_context(), is_verbose())
+    handler = DocumentHandler(client)
+
+    fmt = output or get_output_format()
+    printer = Printer(format=fmt, plain=is_plain_mode())
+
+    if identifier:
+        result = handler.get(identifier)
+        printer.print(result)
+    else:
+        results = handler.list(doc_type=doc_type, name_filter=name)
+        printer.print(results, document_columns())
+
+
 @app.command("dashboards")
 @app.command("dash")
 def get_dashboards(

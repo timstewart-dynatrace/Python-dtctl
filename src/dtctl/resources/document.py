@@ -92,8 +92,8 @@ class DocumentHandler(ResourceHandler[Document]):
 
         while True:
             if next_page_key:
-                # For subsequent pages, only use page-key parameter
-                page_params = {"page-key": next_page_key}
+                # For subsequent pages, include filter params along with page-key
+                page_params = {**query_params, "page-key": next_page_key}
             else:
                 page_params = query_params
 

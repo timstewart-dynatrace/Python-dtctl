@@ -94,9 +94,9 @@ class CRUDHandler(ResourceHandler[T]):
             while True:
                 # Build request params
                 if next_page_key:
-                    # For subsequent pages, some APIs only want the page key
+                    # For subsequent pages, include original params along with page key
                     if self.pagination_key == "page-key":
-                        request_params = {"page-key": next_page_key}
+                        request_params = {**params, "page-key": next_page_key}
                     else:
                         request_params = {**params, "nextPageKey": next_page_key}
                 else:

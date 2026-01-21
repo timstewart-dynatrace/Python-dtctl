@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-01-21
+
+### Added
+- `get documents` / `get docs` command to list all documents (dashboards and notebooks)
+  - Optional `--type` / `-t` flag to filter by type
+  - Optional `--name` / `-n` flag to filter by name
+
 ### Fixed
 - Add pagination support to all list operations to return complete results
   - Base CRUDHandler now fetches all pages automatically
@@ -16,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - SLOs, notifications
   - IAM resources (users, groups, policies, bindings, boundaries)
   - Lookup tables
+- Fix document type filter being dropped on subsequent pagination pages
+  - `get dashboards` and `get notebooks` now correctly return only their type
+  - Query parameters (including filters) are preserved across all pages
 
 ## [0.2.0] - 2026-01-21
 
@@ -85,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resources: workflows, executions, dashboards, notebooks, SLOs, settings, buckets, apps
 - Commands: get, describe, create, delete, edit, apply, exec, logs, query, share
 
-[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/timstewart-dynatrace/Python-dtctl/releases/tag/v0.1.0
