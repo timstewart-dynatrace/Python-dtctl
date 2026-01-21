@@ -52,14 +52,27 @@ class SettingsHandler(ResourceHandler[SettingsObject]):
         return self._objects_path
 
     def list_schemas(self) -> list[dict[str, Any]]:
-        """List all settings schemas.
+        """List all settings schemas with pagination.
 
         Returns:
             List of schema dictionaries
         """
-        response = self.client.get(self._schemas_path)
-        data = response.json()
-        return data.get("items", [])
+        all_schemas: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            params = {"nextPageKey": next_page_key} if next_page_key else {}
+            response = self.client.get(self._schemas_path, params=params)
+            data = response.json()
+
+            items = data.get("items", [])
+            all_schemas.extend(items)
+
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_schemas
 
     def get_schema(self, schema_id: str) -> dict[str, Any]:
         """Get a settings schema definition.
@@ -79,7 +92,7 @@ class SettingsHandler(ResourceHandler[SettingsObject]):
         scope: str | None = None,
         **params: Any,
     ) -> list[dict[str, Any]]:
-        """List settings objects.
+        """List settings objects with pagination.
 
         Args:
             schema_id: Filter by schema ID
@@ -96,9 +109,26 @@ class SettingsHandler(ResourceHandler[SettingsObject]):
             query_params["scopes"] = scope
         query_params.update(params)
 
-        response = self.client.get(self._objects_path, params=query_params)
-        data = response.json()
-        return data.get("items", [])
+        all_objects: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            if next_page_key:
+                request_params = {**query_params, "nextPageKey": next_page_key}
+            else:
+                request_params = query_params
+
+            response = self.client.get(self._objects_path, params=request_params)
+            data = response.json()
+
+            items = data.get("items", [])
+            all_objects.extend(items)
+
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_objects
 
     def get_object(self, object_id: str) -> dict[str, Any]:
         """Get a settings object by ID.

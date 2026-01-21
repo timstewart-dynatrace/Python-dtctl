@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Add pagination support to all list operations to return complete results
+  - Base CRUDHandler now fetches all pages automatically
+  - Documents (dashboards, notebooks) use `page-key` pagination
+  - Settings objects and schemas
+  - Workflows and executions
+  - SLOs, notifications
+  - IAM resources (users, groups, policies, bindings, boundaries)
+  - Lookup tables
+
 ## [0.2.0] - 2026-01-21
 
 ### Added

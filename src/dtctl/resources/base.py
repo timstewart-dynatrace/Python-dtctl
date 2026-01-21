@@ -62,8 +62,24 @@ class CRUDHandler(ResourceHandler[T]):
         """Field name for the resource ID."""
         return "id"
 
+    @property
+    def pagination_key(self) -> str:
+        """Query parameter key for pagination cursor.
+
+        Override in subclass if API uses different key (e.g., 'page-key').
+        """
+        return "nextPageKey"
+
+    @property
+    def supports_pagination(self) -> bool:
+        """Whether this resource supports pagination.
+
+        Override in subclass to disable pagination for APIs that don't support it.
+        """
+        return True
+
     def list(self, **params: Any) -> list[dict[str, Any]]:
-        """List all resources.
+        """List all resources with automatic pagination.
 
         Args:
             **params: Query parameters for filtering
@@ -72,13 +88,41 @@ class CRUDHandler(ResourceHandler[T]):
             List of resource dictionaries
         """
         try:
-            response = self.client.get(self.api_path, params=params)
-            data = response.json()
+            all_results: list[dict[str, Any]] = []
+            next_page_key: str | None = None
 
-            # Handle paginated responses
-            if isinstance(data, dict):
-                return data.get(self.list_key, [])
-            return data
+            while True:
+                # Build request params
+                if next_page_key:
+                    # For subsequent pages, some APIs only want the page key
+                    if self.pagination_key == "page-key":
+                        request_params = {"page-key": next_page_key}
+                    else:
+                        request_params = {**params, "nextPageKey": next_page_key}
+                else:
+                    request_params = params
+
+                response = self.client.get(self.api_path, params=request_params)
+                data = response.json()
+
+                # Handle paginated responses
+                if isinstance(data, dict):
+                    results = data.get(self.list_key, [])
+                    all_results.extend(results)
+
+                    # Check for next page (try both common patterns)
+                    if self.supports_pagination:
+                        next_page_key = data.get("nextPageKey") or data.get("next_page_key")
+                        if not next_page_key:
+                            break
+                    else:
+                        break
+                else:
+                    # Response is a list directly
+                    all_results.extend(data)
+                    break
+
+            return all_results
 
         except APIError as e:
             self._handle_error("list", e)

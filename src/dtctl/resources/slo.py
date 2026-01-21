@@ -50,7 +50,7 @@ class SLOHandler(CRUDHandler[SLO]):
         name_filter: str | None = None,
         **params: Any,
     ) -> list[dict[str, Any]]:
-        """List SLOs with optional filtering.
+        """List SLOs with optional filtering and pagination.
 
         Args:
             enabled_only: Only return enabled SLOs
@@ -67,9 +67,26 @@ class SLOHandler(CRUDHandler[SLO]):
             query_params["sloSelector"] = f'name("{name_filter}")'
         query_params.update(params)
 
-        response = self.client.get(self.api_path, params=query_params)
-        data = response.json()
-        return data.get(self.list_key, [])
+        all_slos: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            if next_page_key:
+                request_params = {**query_params, "nextPageKey": next_page_key}
+            else:
+                request_params = query_params
+
+            response = self.client.get(self.api_path, params=request_params)
+            data = response.json()
+
+            slos = data.get(self.list_key, [])
+            all_slos.extend(slos)
+
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_slos
 
     def get(self, slo_id: str) -> dict[str, Any]:
         """Get an SLO by ID.

@@ -120,12 +120,12 @@ class ExecutionHandler:
         state: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
-        """List workflow executions.
+        """List workflow executions with pagination.
 
         Args:
             workflow_id: Filter by workflow ID
             state: Filter by state (RUNNING, COMPLETED, FAILED, etc.)
-            limit: Maximum number of results
+            limit: Maximum number of results per page
 
         Returns:
             List of execution dictionaries
@@ -136,9 +136,26 @@ class ExecutionHandler:
         if state:
             params["state"] = state
 
-        response = self.client.get(f"{self.base_path}/executions", params=params)
-        data = response.json()
-        return data.get("results", [])
+        all_executions: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            if next_page_key:
+                request_params = {**params, "nextPageKey": next_page_key}
+            else:
+                request_params = params
+
+            response = self.client.get(f"{self.base_path}/executions", params=request_params)
+            data = response.json()
+
+            results = data.get("results", [])
+            all_executions.extend(results)
+
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_executions
 
     def get_execution(self, execution_id: str) -> dict[str, Any]:
         """Get execution details.

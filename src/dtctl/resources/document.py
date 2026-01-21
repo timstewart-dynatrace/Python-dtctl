@@ -54,6 +54,7 @@ class DocumentHandler(ResourceHandler[Document]):
         doc_type: DocumentType | None = None,
         name_filter: str | None = None,
         owner: str | None = None,
+        page_size: int = 100,
         **params: Any,
     ) -> list[dict[str, Any]]:
         """List documents with optional filtering.
@@ -62,12 +63,13 @@ class DocumentHandler(ResourceHandler[Document]):
             doc_type: Filter by type (dashboard or notebook)
             name_filter: Filter by name (partial match)
             owner: Filter by owner
+            page_size: Number of documents per page (default 100)
             **params: Additional query parameters
 
         Returns:
             List of document dictionaries
         """
-        query_params: dict[str, Any] = {}
+        query_params: dict[str, Any] = {"page-size": page_size}
 
         # Build filter expression
         filters = []
@@ -84,9 +86,29 @@ class DocumentHandler(ResourceHandler[Document]):
 
         query_params.update(params)
 
-        response = self.client.get(self.api_path, params=query_params)
-        data = response.json()
-        return data.get("documents", [])
+        # Fetch all pages
+        all_documents: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            if next_page_key:
+                # For subsequent pages, only use page-key parameter
+                page_params = {"page-key": next_page_key}
+            else:
+                page_params = query_params
+
+            response = self.client.get(self.api_path, params=page_params)
+            data = response.json()
+
+            documents = data.get("documents", [])
+            all_documents.extend(documents)
+
+            # Check for next page
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_documents
 
     def get(self, document_id: str, metadata_only: bool = False) -> dict[str, Any]:
         """Get a document by ID.

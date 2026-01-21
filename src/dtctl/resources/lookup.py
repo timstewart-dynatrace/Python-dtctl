@@ -44,15 +44,32 @@ class LookupTableHandler(CRUDHandler[LookupTable]):
         return "tables"
 
     def list(self, **params: Any) -> list[dict[str, Any]]:
-        """List lookup tables.
+        """List lookup tables with pagination.
 
         Returns:
             List of lookup table dictionaries
         """
         try:
-            response = self.client.get(self.api_path, params=params)
-            data = response.json()
-            return data.get(self.list_key, [])
+            all_tables: list[dict[str, Any]] = []
+            next_page_key: str | None = None
+
+            while True:
+                if next_page_key:
+                    request_params = {**params, "nextPageKey": next_page_key}
+                else:
+                    request_params = params
+
+                response = self.client.get(self.api_path, params=request_params)
+                data = response.json()
+
+                tables = data.get(self.list_key, [])
+                all_tables.extend(tables)
+
+                next_page_key = data.get("nextPageKey")
+                if not next_page_key:
+                    break
+
+            return all_tables
         except APIError as e:
             self._handle_error("list", e)
             return []

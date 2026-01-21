@@ -46,7 +46,7 @@ class NotificationHandler(CRUDHandler[Notification]):
         notification_type: str | None = None,
         **params: Any,
     ) -> list[dict[str, Any]]:
-        """List notifications with optional filtering.
+        """List notifications with optional filtering and pagination.
 
         Args:
             enabled_only: Only return enabled notifications
@@ -61,9 +61,26 @@ class NotificationHandler(CRUDHandler[Notification]):
             query_params["type"] = notification_type
         query_params.update(params)
 
-        response = self.client.get(self.api_path, params=query_params)
-        data = response.json()
-        return data.get(self.list_key, [])
+        all_notifications: list[dict[str, Any]] = []
+        next_page_key: str | None = None
+
+        while True:
+            if next_page_key:
+                request_params = {**query_params, "nextPageKey": next_page_key}
+            else:
+                request_params = query_params
+
+            response = self.client.get(self.api_path, params=request_params)
+            data = response.json()
+
+            notifications = data.get(self.list_key, [])
+            all_notifications.extend(notifications)
+
+            next_page_key = data.get("nextPageKey")
+            if not next_page_key:
+                break
+
+        return all_notifications
 
     def get(self, notification_id: str) -> dict[str, Any]:
         """Get a notification by ID.
