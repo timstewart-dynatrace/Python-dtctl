@@ -17,9 +17,9 @@ def is_likely_id(identifier: str) -> bool:
     """Determine if an identifier looks like a UUID/ID rather than a name.
 
     Heuristics:
-    - Contains dashes and is longer than 20 chars (UUID format)
-    - Matches UUID pattern
-    - Contains only hex characters and dashes
+    - Matches UUID pattern (8-4-4-4-12 hex format)
+    - Matches compact UUID pattern (32 hex chars)
+    - Contains only hex characters and dashes in UUID-like structure
 
     Args:
         identifier: String to analyze
@@ -27,13 +27,20 @@ def is_likely_id(identifier: str) -> bool:
     Returns:
         True if identifier looks like an ID
     """
-    # UUID pattern
+    # Standard UUID pattern (8-4-4-4-12)
     uuid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     if re.match(uuid_pattern, identifier):
         return True
 
-    # Longer hex-ish strings with dashes
-    if len(identifier) > 20 and "-" in identifier:
+    # Compact UUID (32 hex characters, no dashes)
+    compact_uuid_pattern = r"^[0-9a-fA-F]{32}$"
+    if re.match(compact_uuid_pattern, identifier):
+        return True
+
+    # Hex string with dashes that looks like an ID (only hex chars and dashes)
+    # Must be at least 20 chars and contain ONLY hex chars and dashes
+    hex_id_pattern = r"^[0-9a-fA-F-]+$"
+    if len(identifier) >= 20 and re.match(hex_id_pattern, identifier):
         return True
 
     return False
