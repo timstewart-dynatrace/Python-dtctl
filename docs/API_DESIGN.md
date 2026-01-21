@@ -32,6 +32,13 @@ apply       - Apply configuration from file (create or update)
 logs        - Print logs for executions
 query       - Execute a DQL query
 exec        - Execute a workflow, analyzer, or copilot
+wait        - Wait for DQL query conditions
+history     - View version history of resources
+restore     - Restore resources to previous versions
+auth        - Authentication operations (whoami, test)
+completion  - Generate shell completions
+chown       - Change ownership of documents
+clone       - Clone/duplicate resources
 ```
 
 ### Syntax Pattern
@@ -83,9 +90,15 @@ dtctl describe execution <execution-id>          # Execution details
 dtctl logs <execution-id>                        # View execution logs
 ```
 
-### Dashboards & Notebooks
+### Documents (Dashboards & Notebooks)
 
 ```bash
+# All documents (dashboards and notebooks combined)
+dtctl get documents                              # List all documents
+dtctl get docs                                   # Alias
+dtctl get documents --type dashboard             # Filter by type
+dtctl get documents --name "report"              # Filter by name
+
 # Dashboards
 dtctl get dashboards                             # List all dashboards
 dtctl get dashboard <id>                         # Get specific dashboard
@@ -103,6 +116,16 @@ dtctl edit notebook <id>
 # Sharing
 dtctl share dashboard <id> --user <email>        # Share with user
 dtctl share dashboard <id> --group <group-id>    # Share with group
+
+# Change ownership
+dtctl chown dashboard <id> --to <user-id>        # Transfer ownership
+dtctl chown notebook <id> --to <user-id> --admin # With admin access
+
+# History and restore
+dtctl history dashboard <id>                     # View snapshots
+dtctl history notebook <id>                      # View snapshots
+dtctl restore dashboard <id> --snapshot <id>     # Restore to snapshot
+dtctl restore notebook <id> --snapshot <id>      # Restore to snapshot
 ```
 
 ### SLOs
@@ -161,6 +184,17 @@ dtctl delete edgeconnect <id>
 # OpenPipeline
 dtctl get openpipelines
 dtctl describe openpipeline <id>
+
+# Lookup Tables
+dtctl get lookup-tables                          # List all tables
+dtctl get lt <id>                                # Get table metadata
+dtctl get lt <id> --data                         # Get table data
+dtctl create lookup-table -f data.csv --name "my-table"
+dtctl delete lookup-table <id>
+
+# Limits and Environments
+dtctl get limits                                 # Account limits
+dtctl get environments                           # Configured environments
 ```
 
 ### DQL Queries
@@ -194,6 +228,41 @@ dtctl exec analyzer <name> -f input.json         # Execute analyzer
 dtctl get copilot-skills                         # List skills
 dtctl exec copilot "What is DQL?"                # Chat
 dtctl exec nl2dql "show error logs"              # NL to DQL
+```
+
+### Wait Command
+
+```bash
+# Wait for query conditions
+dtctl wait "fetch logs | filter status='ERROR'" --condition any
+dtctl wait "fetch logs" --condition count --value 10
+dtctl wait "fetch logs" --condition count-gte --value 5
+
+# Conditions: any, none, count, count-gte, count-gt, count-lte, count-lt
+# Options
+dtctl wait "query" --timeout 300                 # 5 minute timeout
+dtctl wait "query" --interval 10                 # Poll every 10s
+dtctl wait "query" --max-attempts 30             # Max 30 attempts
+dtctl wait "query" --backoff                     # Exponential backoff
+dtctl wait "query" --quiet                       # Quiet mode for scripts
+```
+
+### Authentication
+
+```bash
+dtctl auth whoami                                # Show current identity
+dtctl auth test                                  # Test authentication
+dtctl auth whoami -o json                        # JSON output
+```
+
+### Shell Completion
+
+```bash
+dtctl completion bash                            # Print bash completion
+dtctl completion zsh                             # Print zsh completion
+dtctl completion fish                            # Print fish completion
+dtctl completion powershell                      # Print PowerShell completion
+dtctl completion bash --install                  # Auto-install to shell config
 ```
 
 ## Configuration Management

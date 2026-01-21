@@ -16,7 +16,7 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [x] HTTP client with retry, rate limiting, error handling
 - [x] Output formatters: JSON, YAML, table, wide, CSV
 - [x] Global flags: `--context`, `--output`, `--verbose`, `--dry-run`, `--plain`
-- [x] Shell completion (bash, zsh, fish)
+- [x] Shell completion (bash, zsh, fish, powershell)
 - [x] In-memory caching with TTL (reduce API calls)
 - [x] Optional OAuth2 authentication support
 
@@ -48,6 +48,7 @@ This document tracks implemented features and planned work for the Python dtctl 
 |----------|-----|----------|--------|--------|------|-------|------|------|-------|-------|
 | **workflow** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | - |
 | **execution** | ✅ | ✅ | - | - | - | - | - | ✅ | - | - |
+| **document** | ✅ | - | - | - | - | - | - | - | - | - |
 | **dashboard** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ | ✅ |
 | **notebook** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - | - | ✅ | ✅ |
 | **settings** | ✅ | ✅ | ✅ | ✅ | - | ✅ | - | - | - | - |

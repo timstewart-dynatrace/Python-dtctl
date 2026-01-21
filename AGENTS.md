@@ -60,7 +60,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **ALL merges to main that add features or fixes MUST increment the version number.**
 
-Current version: **0.2.0** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
+Current version: **0.2.1** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
 
 #### Semantic Versioning (SemVer)
 
@@ -338,6 +338,7 @@ ruff check src/ --fix
 
 - **Workflows** (`workflows`, `wf`)
 - **Executions** (`executions`, `exec`)
+- **Documents** (`documents`, `docs`) - all dashboards and notebooks
 - **Dashboards** (`dashboards`, `dash`)
 - **Notebooks** (`notebooks`, `nb`)
 - **SLOs** (`slos`, `slo`)
