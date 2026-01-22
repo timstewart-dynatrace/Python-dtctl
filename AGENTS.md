@@ -4,100 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **⚠️ DISCLAIMER**: This tool is **not produced, endorsed, or supported by Dynatrace**. It is an independent, community-driven project. **Use at your own risk.** The authors assume no liability for any issues arising from its use.
 
-## Development Workflow - MANDATORY
+## Instructions Location
 
-**ALL development work MUST follow this workflow:**
+Claude Code instructions are organized in the `.claude/` directory:
 
-### Branching Requirements
+```
+.claude/
+├── CLAUDE.md              # Main instructions (project overview, quick start)
+└── rules/
+    ├── architecture.md    # Project structure, core components, design patterns
+    ├── commands.md        # Available commands and supported resources
+    ├── development.md     # Setup, common tasks, tech stack
+    ├── code-style.md      # Python style, adding resources/commands
+    ├── testing.md         # Test categories, fixtures, writing tests
+    └── workflow.md        # Git branching, versioning, documentation
+```
 
-1. **NEVER commit features directly to main**
-   - ALL new features, enhancements, and non-trivial changes MUST be developed in a feature branch
-   - Branch naming convention: `feature/descriptive-name` or `fix/descriptive-name`
-   - Only documentation fixes and critical hotfixes may be committed directly to main (with approval)
+**See [.claude/CLAUDE.md](.claude/CLAUDE.md) for complete project instructions.**
 
-2. **Feature Branch Workflow**
-   ```bash
-   # Create feature branch from main
-   git checkout main
-   git pull
-   git checkout -b feature/my-feature
+## Quick Reference
 
-   # Develop and commit
-   git add <files>
-   git commit -m "feat: description"
-
-   # Push feature branch
-   git push -u origin feature/my-feature
-   ```
-
-3. **Documentation Requirements - MANDATORY**
-   - **ALL features MUST be documented BEFORE merging to main**
-   - Documentation checklist (ALL must be completed):
-     - [ ] [AGENTS.md](AGENTS.md) - Add to project structure, patterns, or API endpoints
-     - [ ] [README.md](README.md) - Update quick start or features section
-     - [ ] [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) - Update feature status
-     - [ ] [CHANGELOG.md](CHANGELOG.md) - Add to appropriate section
-     - [ ] Code comments and docstrings for new functions/classes
-
-4. **Merge Process**
-   ```bash
-   # Before merging: verify ALL documentation is complete
-   git checkout main
-   git merge feature/my-feature --no-ff
-
-   # If documentation is missing, DO NOT MERGE
-   # Create documentation commits in the feature branch first
-   ```
-
-5. **Verification Before Merge**
-   - Run tests: `pytest tests/ -v`
-   - Verify command help: `dtctl <new-command> --help`
-   - Check all documentation files are updated
-   - Ensure examples are provided
-   - Verify AGENTS.md includes new patterns/endpoints
-
-### Version Management - MANDATORY
-
-**ALL merges to main that add features or fixes MUST increment the version number.**
-
-Current version: **0.2.2** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
-
-#### Semantic Versioning (SemVer)
-
-We follow [Semantic Versioning 2.0.0](https://semver.org/):
-
-**Format:** `MAJOR.MINOR.PATCH` (e.g., 0.2.0)
-
-1. **MAJOR version** (X.0.0) - Incompatible API changes
-2. **MINOR version** (0.X.0) - New features (backwards-compatible)
-3. **PATCH version** (0.0.X) - Bug fixes (backwards-compatible)
-
-#### Version Bump Checklist
-
-Before merging to main, ensure:
-- [ ] Version incremented in `pyproject.toml`
-- [ ] Version incremented in `src/dtctl/__init__.py`
-- [ ] Both files have **matching** version numbers
-- [ ] CHANGELOG.md updated with changes
-- [ ] Version bump committed in feature branch before merge
-
-### CHANGELOG Management - MANDATORY
-
-**ALL changes MUST be documented in CHANGELOG.md**
-
-We follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
-
-#### When to Update CHANGELOG
-
-**In your feature branch, BEFORE merging:**
-
-1. **For new features** - Add to `## [Unreleased]` → `### Added` section
-2. **For changes** - Add to `## [Unreleased]` → `### Changed` section
-3. **For bug fixes** - Add to `## [Unreleased]` → `### Fixed` section
-
-**REMEMBER: Documentation is NOT optional. It is MANDATORY before merge.**
-
-## Project Overview
+### Project Overview
 
 `dtctl` is a kubectl-like CLI tool for interacting with the Dynatrace REST API. The tool follows kubectl's design patterns:
 - Resource-oriented commands (get, describe, create, delete, edit, apply, exec)
@@ -107,256 +34,49 @@ We follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 **Important**: Use kubectl naming conventions (e.g., `exec` not `execute`). Exclude classic-environment v1 and v2 APIs.
 
-## Architecture
+### Current Version
 
-### Project Structure
+**0.2.3** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
 
-```
-src/dtctl/
-├── cli.py               # Main CLI entry point (Typer app)
-├── client.py            # HTTP client with retry/auth
-├── config.py            # Multi-context configuration (Pydantic)
-├── output.py            # Output formatters (Rich tables, JSON, YAML)
-├── commands/            # CLI command modules
-│   ├── config.py        # Configuration management
-│   ├── get.py           # List/retrieve resources (incl. limits, environments)
-│   ├── describe.py      # Detailed resource info
-│   ├── create.py        # Create from manifests
-│   ├── delete.py        # Delete resources
-│   ├── apply.py         # Declarative create/update
-│   ├── edit.py          # Interactive editing
-│   ├── query.py         # DQL query execution
-│   ├── execute.py       # Workflow/analyzer execution
-│   ├── logs.py          # Execution logs
-│   ├── share.py         # Document sharing
-│   ├── cache.py         # Cache management commands
-│   ├── bulk.py          # Bulk operations (apply, delete, execute)
-│   ├── export.py        # Export resources to files
-│   ├── clone.py         # Clone/duplicate resources
-│   ├── template.py      # Template rendering and validation
-│   ├── wait.py          # Wait for DQL conditions
-│   ├── history.py       # View version history
-│   ├── restore.py       # Restore to previous versions
-│   ├── auth.py          # Authentication operations
-│   ├── completion.py    # Shell completion generation
-│   └── chown.py         # Change ownership of documents
-├── resources/           # API resource handlers
-│   ├── base.py          # Base handler classes (CRUDHandler)
-│   ├── workflow.py      # Workflows & executions
-│   ├── document.py      # Dashboards & notebooks
-│   ├── slo.py           # SLOs
-│   ├── settings.py      # Settings objects & schemas
-│   ├── bucket.py        # Grail storage buckets
-│   ├── app.py           # App Engine apps
-│   ├── iam.py           # Users, groups, policies, bindings, boundaries (read-only)
-│   ├── notification.py  # Event notifications
-│   ├── analyzer.py      # Davis AI analyzers
-│   ├── copilot.py       # Davis CoPilot
-│   ├── openpipeline.py  # OpenPipeline configurations
-│   ├── edgeconnect.py   # EdgeConnect configurations
-│   ├── limits.py        # Account limits & quotas
-│   ├── query.py         # DQL query execution
-│   └── lookup.py        # Lookup tables
-└── utils/               # Utility modules
-    ├── template.py      # Jinja2 template rendering
-    ├── format.py        # YAML/JSON conversion
-    ├── resolver.py      # Name-to-ID resolution
-    ├── cache.py         # In-memory caching with TTL
-    └── auth.py          # OAuth2 authentication (optional)
-```
+### Key Rules
 
-### Core Components
+1. **NEVER commit features directly to main** - Use feature branches
+2. **ALL features MUST be documented BEFORE merging**
+3. **ALL merges to main MUST increment the version number**
+4. **ALL changes MUST be documented in CHANGELOG.md**
 
-**CLI Framework (cli.py)**: Uses Typer for command handling with global state for shared options (context, output format, verbose, plain, dry-run).
+See [.claude/rules/workflow.md](.claude/rules/workflow.md) for complete workflow requirements.
 
-**HTTP Client (client.py)**: Built on httpx with:
-- Automatic retry with exponential backoff
-- Rate limit handling (429 status)
-- Bearer token authentication
-- Configurable timeout (30s default)
+### Common Commands
 
-**Configuration (config.py)**: Pydantic models for:
-- Multi-context support (like kubectl)
-- XDG Base Directory compliance (~/.config/dtctl/config)
-- Token storage and retrieval
-- Optional OAuth2 authentication support
-- Environment variable overrides (DTCTL_CONTEXT, DTCTL_OUTPUT, DTCTL_VERBOSE)
-
-**Output (output.py)**: Pluggable formatters:
-- TableFormatter (Rich tables)
-- JSONFormatter (indented JSON)
-- YAMLFormatter (PyYAML)
-- CSVFormatter
-- PlainFormatter (machine-readable JSON)
-
-**Resource Handlers (resources/)**: Each resource type extends `CRUDHandler` or `ResourceHandler` base class with:
-- list(), get(), create(), update(), delete() methods
-- Consistent error handling
-- API path configuration
-
-### Key Design Patterns
-
-**Handler Pattern**: Each resource type has a handler class that encapsulates API operations.
-
-**Factory Functions**: `create_client_from_config()` creates configured clients from context settings.
-
-**Resolver Pattern**: `ResourceResolver` converts human-readable names to API IDs.
-
-**Template Pattern**: Jinja2 templates with `--set key=value` substitution for manifests and queries.
-
-**Caching Pattern**: In-memory singleton cache with TTL for reducing API calls. The `@cached` decorator enables transparent caching on handler methods.
-
-**Clone Pattern**: Resource handlers support cloning by fetching, modifying, and creating new resources with updated names/properties.
-
-## Development Conventions
-
-### Technology Stack
-- **Language**: Python 3.10+
-- **CLI Framework**: Typer (Click-based, type hints)
-- **HTTP Client**: httpx (async-capable, modern)
-- **Data Models**: Pydantic v2 (validation, serialization)
-- **Output**: Rich (tables, formatting, colors)
-- **Configuration**: PyYAML, platformdirs (XDG paths)
-- **Templates**: Jinja2
-
-### Code Style
-- Type hints on all functions
-- Docstrings for public APIs
-- Use `from __future__ import annotations` for forward references
-- Follow PEP 8 with 100 char line limit
-- Use Ruff for linting/formatting
-
-### Adding New Resources
-
-1. Create handler in `src/dtctl/resources/<resource>.py`:
-```python
-from dtctl.resources.base import CRUDHandler
-
-class MyResourceHandler(CRUDHandler):
-    @property
-    def resource_name(self) -> str:
-        return "myresource"
-
-    @property
-    def api_path(self) -> str:
-        return "/platform/api/v1/myresources"
-```
-
-2. Add commands in `src/dtctl/commands/get.py`, `delete.py`, etc.
-
-3. Define columns in `src/dtctl/output.py` for table output.
-
-### Adding New Commands
-
-1. Create command module in `src/dtctl/commands/<command>.py`
-2. Register in `src/dtctl/cli.py` with `app.add_typer()`
-3. Use helper functions for shared state access:
-   - `get_context()` - context override
-   - `get_output_format()` - output format
-   - `is_verbose()` - verbose mode
-   - `is_plain_mode()` - plain mode
-   - `is_dry_run()` - dry-run mode
-
-### Resource Naming
-Follow kubectl conventions:
-- Singular resource names in commands
-- Abbreviations/aliases (e.g., `wf` for `workflow`, `dash` for `dashboard`)
-- Use `@app.command()` decorator multiple times for aliases
-
-### Error Handling
-- Use `typer.Exit(1)` for errors
-- Print errors with `[red]Error:[/red]` prefix using Rich
-- Provide actionable error messages
-- Include API error details when relevant
-
-### Testing
 ```bash
-# Run tests
-pytest
-
-# Run with coverage
-pytest --cov=dtctl
-
-# Type checking
-mypy src/dtctl
-```
-
-## Common Tasks
-
-### Build and Install
-```bash
-pip install -e .           # Development install
-pip install -e ".[dev]"    # With dev dependencies
-```
-
-### Run CLI
-```bash
-dtctl --help
-dtctl config view
-dtctl get workflows
-dtctl get limits
-dtctl get environments
-dtctl clone workflow my-wf --name "Copy"
-dtctl template render -f manifest.yaml --set env=prod
-```
-
-### Format Code
-```bash
+# Development
+pip install -e ".[dev]"
 ruff format src/
 ruff check src/ --fix
+pytest tests/ -v
+
+# CLI
+dtctl --help
+dtctl get workflows
+dtctl get dashboards --all  # Include ready-made documents
+dtctl query "fetch logs | limit 10"
 ```
 
-## Available Commands
+### Technology Stack
 
-| Command | Description |
-|---------|-------------|
-| `config` | Manage configuration contexts and credentials |
-| `get` | List or get resources (workflows, dashboards, slos, limits, environments, etc.) |
-| `describe` | Show detailed resource information |
-| `create` | Create resources from manifests |
-| `delete` | Delete resources |
-| `apply` | Apply configuration (create or update) |
-| `edit` | Edit resources in your editor |
-| `query` | Execute DQL queries |
-| `exec` | Execute workflows, analyzers, copilot |
-| `logs` | View execution logs |
-| `share` | Share documents |
-| `unshare` | Remove document sharing |
-| `bulk` | Bulk operations on resources |
-| `export` | Export resources to files |
-| `cache` | Manage API response cache |
-| `clone` | Clone/duplicate resources |
-| `template` | Render and validate templates |
-| `wait` | Wait for DQL query conditions |
-| `history` | View version history of resources |
-| `restore` | Restore resources to previous versions |
-| `auth` | Authentication operations (whoami, test) |
-| `completion` | Generate shell completions (bash, zsh, fish, powershell) |
-| `chown` | Change ownership of dashboards/notebooks |
+Python 3.10+, Typer, httpx, Pydantic v2, Rich, PyYAML, Jinja2
 
-## Supported Resources
+## Full Documentation
 
-- **Workflows** (`workflows`, `wf`)
-- **Executions** (`executions`, `exec`)
-- **Documents** (`documents`, `docs`) - all dashboards and notebooks
-- **Dashboards** (`dashboards`, `dash`)
-- **Notebooks** (`notebooks`, `nb`)
-- **SLOs** (`slos`, `slo`)
-- **Settings** (`settings`)
-- **Settings Schemas** (`schemas`)
-- **Buckets** (`buckets`)
-- **Apps** (`apps`)
-- **Users** (`users`)
-- **Groups** (`groups`)
-- **Policies** (`policies`)
-- **Bindings** (`bindings`)
-- **Boundaries** (`boundaries`)
-- **Effective Permissions** (`effective-permissions`)
-- **Notifications** (`notifications`)
-- **Analyzers** (`analyzers`)
-- **CoPilot Skills** (`copilot-skills`)
-- **EdgeConnect** (`edgeconnects`, `ec`)
-- **OpenPipeline** (`openpipelines`, `op`)
-- **Limits** (`limits`)
-- **Environments** (`environments`, `env`)
-- **Lookup Tables** (`lookup-tables`, `lookups`, `lt`)
+| Document | Description |
+|----------|-------------|
+| [.claude/CLAUDE.md](.claude/CLAUDE.md) | Main instructions and quick start |
+| [.claude/rules/architecture.md](.claude/rules/architecture.md) | Project structure, design patterns |
+| [.claude/rules/commands.md](.claude/rules/commands.md) | Commands and resources reference |
+| [.claude/rules/development.md](.claude/rules/development.md) | Setup, tasks, tech stack |
+| [.claude/rules/code-style.md](.claude/rules/code-style.md) | Code style guidelines |
+| [.claude/rules/testing.md](.claude/rules/testing.md) | Testing conventions |
+| [.claude/rules/workflow.md](.claude/rules/workflow.md) | Git workflow, versioning |
+| [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | Feature roadmap |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |

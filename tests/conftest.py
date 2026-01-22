@@ -29,6 +29,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: marks tests as integration tests (require live API)"
     )
+    config.addinivalue_line(
+        "markers", "validation: marks tests as validation tests (run with --context)"
+    )
 
 
 @pytest.fixture

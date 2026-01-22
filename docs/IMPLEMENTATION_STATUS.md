@@ -71,6 +71,11 @@ This document tracks implemented features and planned work for the Python dtctl 
 | **environments** | ✅ | - | - | - | - | - | - | - | - | - |
 | **lookup-table** | ✅ | ✅ | ✅ | ✅ | - | - | - | - | - | - |
 
+### Document Filtering
+- [x] Default to user-created documents only (UUID IDs)
+- [x] `--all` / `-a` flag to include Dynatrace ready-made documents
+- [x] Applies to `get documents`, `get dashboards`, `get notebooks`
+
 ### DQL Query Features
 - [x] Inline queries: `dtctl query "fetch logs | limit 10"`
 - [x] File-based queries: `dtctl query -f query.dql`
@@ -193,12 +198,20 @@ This document tracks implemented features and planned work for the Python dtctl 
 - [ ] JSONPath output
 - [ ] Chart/sparkline output for timeseries
 
+### Validation Test Suite
+- [x] Validation tests with `--context` parameter
+- [x] Dry-run mode for mutating operations
+- [x] Auth validation tests (whoami, test)
+- [x] Document filtering validation tests
+- [x] Output format validation tests
+- [x] Shell completion validation tests
+
 ### Phase 6: Production Readiness
 - [ ] PyPI package publishing
 - [ ] GitHub Actions CI/CD
 - [ ] Homebrew formula
 - [ ] OS keychain integration
-- [ ] Comprehensive test suite
+- [x] Comprehensive test suite (102+ tests)
 
 ---
 
