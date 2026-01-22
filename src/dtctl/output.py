@@ -229,12 +229,24 @@ def execution_columns() -> list[Column]:
     ]
 
 
+def _is_system_document(doc_id: str | None) -> str:
+    """Determine if a document ID indicates a pre-built/system document."""
+    if not doc_id:
+        return ""
+    # Pre-built Dynatrace documents have IDs like "dynatrace.kubernetes.kubernetes-cluster"
+    # User-created documents have UUID-style IDs
+    if doc_id.startswith("dynatrace."):
+        return "Yes"
+    return "No"
+
+
 def document_columns() -> list[Column]:
     """Column definitions for document resources (dashboards, notebooks)."""
     return [
         Column("id", "ID"),
         Column("name", "NAME"),
         Column("type", "TYPE"),
+        Column("id", "SYSTEM", formatter=_is_system_document),
         Column("owner", "OWNER"),
         Column("isPrivate", "PRIVATE", formatter=lambda x: "Yes" if x else "No"),
         Column("version", "VERSION", wide_only=True),

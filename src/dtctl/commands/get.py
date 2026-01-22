@@ -110,15 +110,30 @@ def get_executions(
         printer.print(results, execution_columns())
 
 
+def _is_uuid_id(doc_id: str) -> bool:
+    """Check if a document ID is a true UUID format (user-created document)."""
+    if not doc_id:
+        return False
+    import re
+    # Standard UUID pattern (8-4-4-4-12 hex format)
+    uuid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    return bool(re.match(uuid_pattern, doc_id))
+
+
 @app.command("documents")
 @app.command("docs")
 def get_documents(
     identifier: Optional[str] = typer.Argument(None, help="Document ID"),
     name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
     doc_type: Optional[str] = typer.Option(None, "--type", "-t", help="Filter by type (dashboard, notebook)"),
+    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made documents"),
     output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
 ) -> None:
-    """List or get all documents (dashboards and notebooks)."""
+    """List or get all documents (dashboards and notebooks).
+
+    By default, only user-created documents (with UUID IDs) are shown.
+    Use --all to also include Dynatrace ready-made documents.
+    """
     from dtctl.resources.document import DocumentHandler
 
     config = load_config()
@@ -133,6 +148,8 @@ def get_documents(
         printer.print(result)
     else:
         results = handler.list(doc_type=doc_type, name_filter=name)
+        if not all_docs:
+            results = [d for d in results if _is_uuid_id(d.get("id", ""))]
         printer.print(results, document_columns())
 
 
@@ -141,9 +158,14 @@ def get_documents(
 def get_dashboards(
     identifier: Optional[str] = typer.Argument(None, help="Dashboard ID or name"),
     name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made dashboards"),
     output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
 ) -> None:
-    """List or get dashboards."""
+    """List or get dashboards.
+
+    By default, only user-created dashboards (with UUID IDs) are shown.
+    Use --all to also include Dynatrace ready-made dashboards.
+    """
     from dtctl.resources.document import create_dashboard_handler
 
     config = load_config()
@@ -161,6 +183,8 @@ def get_dashboards(
         printer.print(result)
     else:
         results = handler.list(name_filter=name)
+        if not all_docs:
+            results = [d for d in results if _is_uuid_id(d.get("id", ""))]
         printer.print(results, document_columns())
 
 
@@ -169,9 +193,14 @@ def get_dashboards(
 def get_notebooks(
     identifier: Optional[str] = typer.Argument(None, help="Notebook ID or name"),
     name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made notebooks"),
     output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
 ) -> None:
-    """List or get notebooks."""
+    """List or get notebooks.
+
+    By default, only user-created notebooks (with UUID IDs) are shown.
+    Use --all to also include Dynatrace ready-made notebooks.
+    """
     from dtctl.resources.document import create_notebook_handler
 
     config = load_config()
@@ -189,6 +218,8 @@ def get_notebooks(
         printer.print(result)
     else:
         results = handler.list(name_filter=name)
+        if not all_docs:
+            results = [d for d in results if _is_uuid_id(d.get("id", ""))]
         printer.print(results, document_columns())
 
 

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-01-22
+
+### Added
+- Document commands now filter to user-created documents by default
+  - `get documents`, `get dashboards`, `get notebooks` show only UUID-based IDs
+  - Use `--all` / `-a` flag to include Dynatrace ready-made documents
+- Validation test suite (`tests/test_validation.py`)
+  - Accepts `--context` parameter for live API testing
+  - Uses dry-run mode for mutating operations
+  - Run with: `pytest tests/test_validation.py -v --context=<context-name>`
+
+### Changed
+- Document output now clearly distinguishes user-created vs ready-made documents
+
 ## [0.2.2] - 2026-01-21
 
 ### Changed
@@ -108,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resources: workflows, executions, dashboards, notebooks, SLOs, settings, buckets, apps
 - Commands: get, describe, create, delete, edit, apply, exec, logs, query, share
 
-[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.1.1...v0.2.0

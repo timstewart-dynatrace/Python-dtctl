@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dtctl"
-version = "0.2.2"
+version = "0.2.3"
 description = "A kubectl-inspired CLI for managing Dynatrace platform resources"
 readme = "README.md"
 license = "MIT"
@@ -95,4 +95,5 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
     "integration: marks tests as integration tests (require live API access)",
+    "validation: marks tests as validation tests (run with --context)",
 ]
