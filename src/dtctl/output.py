@@ -16,7 +16,7 @@ import io
 import json
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Sequence
+from typing import Any
 
 import yaml
 from rich.console import Console
@@ -271,7 +271,16 @@ def settings_columns() -> list[Column]:
         Column("objectId", "OBJECT ID"),
         Column("schemaId", "SCHEMA"),
         Column("scope", "SCOPE"),
-        Column("value", "VALUE", wide_only=True, formatter=lambda x: str(x)[:50] + "..." if x and len(str(x)) > 50 else str(x) if x else ""),
+        Column(
+            "value",
+            "VALUE",
+            wide_only=True,
+            formatter=lambda x: str(x)[:50] + "..."
+            if x and len(str(x)) > 50
+            else str(x)
+            if x
+            else "",
+        ),
     ]
 
 
@@ -354,7 +363,9 @@ def binding_columns() -> list[Column]:
         Column("groupUuid", "GROUP UUID"),
         Column("levelType", "LEVEL"),
         Column("levelId", "LEVEL ID", wide_only=True),
-        Column("metadata", "METADATA", wide_only=True, formatter=lambda x: str(x)[:50] if x else ""),
+        Column(
+            "metadata", "METADATA", wide_only=True, formatter=lambda x: str(x)[:50] if x else ""
+        ),
     ]
 
 

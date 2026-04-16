@@ -127,7 +127,7 @@ class TokenManager:
             self._http_client.close()
             self._http_client = None
 
-    def __enter__(self) -> "TokenManager":
+    def __enter__(self) -> TokenManager:
         return self
 
     def __exit__(self, *args: Any) -> None:

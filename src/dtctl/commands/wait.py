@@ -5,7 +5,6 @@ from __future__ import annotations
 import time
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -41,24 +40,28 @@ EXIT_ERROR = 3
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -100,9 +103,9 @@ def evaluate_condition(
 @app.callback(invoke_without_command=True)
 def wait_for_condition(
     ctx: typer.Context,
-    query: Optional[str] = typer.Argument(None, help="DQL query string"),
-    file: Optional[Path] = typer.Option(None, "--file", "-f", help="Path to DQL query file"),
-    set_values: Optional[list[str]] = typer.Option(
+    query: str | None = typer.Argument(None, help="DQL query string"),
+    file: Path | None = typer.Option(None, "--file", "-f", help="Path to DQL query file"),
+    set_values: list[str] | None = typer.Option(
         None, "--set", help="Set template variables (key=value)"
     ),
     condition: WaitCondition = typer.Option(
@@ -154,7 +157,7 @@ def wait_for_condition(
         "--query-limit",
         help="Maximum number of records per query",
     ),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
     quiet: bool = typer.Option(
         False,
         "--quiet",
@@ -262,7 +265,7 @@ def wait_for_condition(
             )
         except Exception as e:
             console.print(f"[red]Error executing query:[/red] {e}")
-            raise typer.Exit(EXIT_ERROR)
+            raise typer.Exit(EXIT_ERROR) from None
 
         # Check for query errors
         state_value = result.get("state", "")

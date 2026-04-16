@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -11,7 +9,7 @@ from rich.table import Table
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import Printer, OutputFormat
+from dtctl.output import OutputFormat, Printer
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -20,24 +18,28 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -45,7 +47,7 @@ def is_verbose() -> bool:
 @app.command("wf")
 def describe_workflow(
     identifier: str = typer.Argument(..., help="Workflow ID or name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed workflow information."""
     from dtctl.resources.workflow import WorkflowHandler
@@ -83,7 +85,9 @@ def describe_workflow(
         table.add_column("Position")
         for name, task in tasks.items():
             action = task.get("action", "N/A")
-            position = f"({task.get('position', {}).get('x', 0)}, {task.get('position', {}).get('y', 0)})"
+            position = (
+                f"({task.get('position', {}).get('x', 0)}, {task.get('position', {}).get('y', 0)})"
+            )
             table.add_row(name, action, position)
         console.print(table)
 
@@ -97,7 +101,7 @@ def describe_workflow(
 @app.command("workflow-execution")
 def describe_execution(
     execution_id: str = typer.Argument(..., help="Execution ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed execution information including task states."""
     from dtctl.resources.workflow import ExecutionHandler
@@ -146,7 +150,7 @@ def describe_execution(
 @app.command("dash")
 def describe_dashboard(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed dashboard information."""
     from dtctl.resources.document import create_dashboard_handler
@@ -177,7 +181,7 @@ def describe_dashboard(
 @app.command("nb")
 def describe_notebook(
     identifier: str = typer.Argument(..., help="Notebook ID or name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed notebook information."""
     from dtctl.resources.document import create_notebook_handler
@@ -207,7 +211,7 @@ def describe_notebook(
 @app.command("slo")
 def describe_slo(
     identifier: str = typer.Argument(..., help="SLO ID or name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed SLO information."""
     from dtctl.resources.slo import SLOHandler
@@ -240,7 +244,7 @@ def describe_slo(
 @app.command("settings")
 def describe_settings(
     object_id: str = typer.Argument(..., help="Settings object ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed settings object information."""
     from dtctl.resources.settings import SettingsHandler
@@ -259,7 +263,7 @@ def describe_settings(
 @app.command("analyzer")
 def describe_analyzer(
     analyzer_name: str = typer.Argument(..., help="Analyzer name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed analyzer information."""
     from dtctl.resources.analyzer import AnalyzerHandler
@@ -279,8 +283,10 @@ def describe_analyzer(
 def describe_policy(
     policy_id: str = typer.Argument(..., help="Policy UUID"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed policy information including statement query."""
     from dtctl.resources.iam import IAMHandler
@@ -314,8 +320,10 @@ def describe_binding(
     policy_id: str = typer.Option(..., "--policy", "-p", help="Policy UUID"),
     group_id: str = typer.Option(..., "--group", "-g", help="Group UUID"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed policy binding information."""
     from dtctl.resources.iam import IAMHandler
@@ -362,8 +370,10 @@ def describe_binding(
 def describe_boundary(
     boundary_id: str = typer.Argument(..., help="Boundary UUID"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed policy boundary information."""
     from dtctl.resources.iam import IAMHandler
@@ -393,7 +403,7 @@ def describe_boundary(
 @app.command("user")
 def describe_user(
     user_id: str = typer.Argument(..., help="User ID or email"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed user information including group memberships."""
     from dtctl.resources.iam import IAMHandler
@@ -428,7 +438,7 @@ def describe_user(
 @app.command("group")
 def describe_group(
     group_id: str = typer.Argument(..., help="Group UUID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Show detailed group information including members."""
     from dtctl.resources.iam import IAMHandler

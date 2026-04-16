@@ -2,26 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
 from dtctl.output import (
-    Printer,
     OutputFormat,
-    workflow_columns,
-    execution_columns,
-    document_columns,
-    slo_columns,
-    settings_columns,
-    bucket_columns,
+    Printer,
     app_columns,
-    user_columns,
-    group_columns,
+    bucket_columns,
+    document_columns,
     environment_columns,
+    execution_columns,
+    group_columns,
+    settings_columns,
+    slo_columns,
+    user_columns,
+    workflow_columns,
 )
 
 app = typer.Typer(no_args_is_help=True)
@@ -31,33 +29,37 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 @app.command("workflows")
 @app.command("wf")
 def get_workflows(
-    identifier: Optional[str] = typer.Argument(None, help="Workflow ID or name"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    identifier: str | None = typer.Argument(None, help="Workflow ID or name"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get workflows."""
     from dtctl.resources.workflow import WorkflowHandler
@@ -72,6 +74,7 @@ def get_workflows(
     if identifier:
         # Get single workflow
         from dtctl.utils.resolver import ResourceResolver
+
         resolver = ResourceResolver(client)
         workflow_id = resolver.resolve_workflow(identifier)
         result = handler.get(workflow_id)
@@ -87,10 +90,10 @@ def get_workflows(
 @app.command("executions")
 @app.command("exec")
 def get_executions(
-    identifier: Optional[str] = typer.Argument(None, help="Execution ID"),
-    workflow: Optional[str] = typer.Option(None, "--workflow", "-w", help="Filter by workflow"),
-    state_filter: Optional[str] = typer.Option(None, "--state", "-s", help="Filter by state"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    identifier: str | None = typer.Argument(None, help="Execution ID"),
+    workflow: str | None = typer.Option(None, "--workflow", "-w", help="Filter by workflow"),
+    state_filter: str | None = typer.Option(None, "--state", "-s", help="Filter by state"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get workflow executions."""
     from dtctl.resources.workflow import ExecutionHandler
@@ -115,6 +118,7 @@ def _is_uuid_id(doc_id: str) -> bool:
     if not doc_id:
         return False
     import re
+
     # Standard UUID pattern (8-4-4-4-12 hex format)
     uuid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     return bool(re.match(uuid_pattern, doc_id))
@@ -123,11 +127,15 @@ def _is_uuid_id(doc_id: str) -> bool:
 @app.command("documents")
 @app.command("docs")
 def get_documents(
-    identifier: Optional[str] = typer.Argument(None, help="Document ID"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
-    doc_type: Optional[str] = typer.Option(None, "--type", "-t", help="Filter by type (dashboard, notebook)"),
-    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made documents"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    identifier: str | None = typer.Argument(None, help="Document ID"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
+    doc_type: str | None = typer.Option(
+        None, "--type", "-t", help="Filter by type (dashboard, notebook)"
+    ),
+    all_docs: bool = typer.Option(
+        False, "--all", "-a", help="Include Dynatrace ready-made documents"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get all documents (dashboards and notebooks).
 
@@ -156,10 +164,12 @@ def get_documents(
 @app.command("dashboards")
 @app.command("dash")
 def get_dashboards(
-    identifier: Optional[str] = typer.Argument(None, help="Dashboard ID or name"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
-    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made dashboards"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    identifier: str | None = typer.Argument(None, help="Dashboard ID or name"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
+    all_docs: bool = typer.Option(
+        False, "--all", "-a", help="Include Dynatrace ready-made dashboards"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get dashboards.
 
@@ -177,6 +187,7 @@ def get_dashboards(
 
     if identifier:
         from dtctl.utils.resolver import ResourceResolver
+
         resolver = ResourceResolver(client)
         doc_id = resolver.resolve_document(identifier, "dashboard")
         result = handler.get(doc_id)
@@ -191,10 +202,12 @@ def get_dashboards(
 @app.command("notebooks")
 @app.command("nb")
 def get_notebooks(
-    identifier: Optional[str] = typer.Argument(None, help="Notebook ID or name"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
-    all_docs: bool = typer.Option(False, "--all", "-a", help="Include Dynatrace ready-made notebooks"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    identifier: str | None = typer.Argument(None, help="Notebook ID or name"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
+    all_docs: bool = typer.Option(
+        False, "--all", "-a", help="Include Dynatrace ready-made notebooks"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get notebooks.
 
@@ -212,6 +225,7 @@ def get_notebooks(
 
     if identifier:
         from dtctl.utils.resolver import ResourceResolver
+
         resolver = ResourceResolver(client)
         doc_id = resolver.resolve_document(identifier, "notebook")
         result = handler.get(doc_id)
@@ -226,10 +240,10 @@ def get_notebooks(
 @app.command("slos")
 @app.command("slo")
 def get_slos(
-    identifier: Optional[str] = typer.Argument(None, help="SLO ID or name"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    identifier: str | None = typer.Argument(None, help="SLO ID or name"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
     enabled: bool = typer.Option(False, "--enabled", help="Only show enabled SLOs"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get SLOs."""
     from dtctl.resources.slo import SLOHandler
@@ -243,6 +257,7 @@ def get_slos(
 
     if identifier:
         from dtctl.utils.resolver import ResourceResolver
+
         resolver = ResourceResolver(client)
         slo_id = resolver.resolve_slo(identifier)
         result = handler.get(slo_id)
@@ -254,10 +269,10 @@ def get_slos(
 
 @app.command("settings")
 def get_settings(
-    object_id: Optional[str] = typer.Argument(None, help="Settings object ID"),
-    schema: Optional[str] = typer.Option(None, "--schema", "-s", help="Filter by schema ID"),
-    scope: Optional[str] = typer.Option(None, "--scope", help="Filter by scope"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    object_id: str | None = typer.Argument(None, help="Settings object ID"),
+    schema: str | None = typer.Option(None, "--schema", "-s", help="Filter by schema ID"),
+    scope: str | None = typer.Option(None, "--scope", help="Filter by scope"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get settings objects."""
     from dtctl.resources.settings import SettingsHandler
@@ -279,8 +294,8 @@ def get_settings(
 
 @app.command("schemas")
 def get_schemas(
-    schema_id: Optional[str] = typer.Argument(None, help="Schema ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    schema_id: str | None = typer.Argument(None, help="Schema ID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get settings schemas."""
     from dtctl.resources.settings import SettingsHandler
@@ -302,8 +317,8 @@ def get_schemas(
 
 @app.command("buckets")
 def get_buckets(
-    bucket_name: Optional[str] = typer.Argument(None, help="Bucket name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    bucket_name: str | None = typer.Argument(None, help="Bucket name"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get Grail buckets."""
     from dtctl.resources.bucket import BucketHandler
@@ -325,8 +340,8 @@ def get_buckets(
 
 @app.command("apps")
 def get_apps(
-    app_id: Optional[str] = typer.Argument(None, help="App ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    app_id: str | None = typer.Argument(None, help="App ID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get installed apps."""
     from dtctl.resources.app import AppHandler
@@ -348,8 +363,8 @@ def get_apps(
 
 @app.command("users")
 def get_users(
-    user_id: Optional[str] = typer.Argument(None, help="User ID or email"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    user_id: str | None = typer.Argument(None, help="User ID or email"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get users."""
     from dtctl.resources.iam import IAMHandler
@@ -371,8 +386,8 @@ def get_users(
 
 @app.command("groups")
 def get_groups(
-    group_id: Optional[str] = typer.Argument(None, help="Group UUID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    group_id: str | None = typer.Argument(None, help="Group UUID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get groups."""
     from dtctl.resources.iam import IAMHandler
@@ -394,8 +409,8 @@ def get_groups(
 
 @app.command("notifications")
 def get_notifications(
-    notification_id: Optional[str] = typer.Argument(None, help="Notification ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    notification_id: str | None = typer.Argument(None, help="Notification ID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get notifications."""
     from dtctl.resources.notification import NotificationHandler
@@ -417,8 +432,8 @@ def get_notifications(
 
 @app.command("analyzers")
 def get_analyzers(
-    analyzer_name: Optional[str] = typer.Argument(None, help="Analyzer name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    analyzer_name: str | None = typer.Argument(None, help="Analyzer name"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get Davis analyzers."""
     from dtctl.resources.analyzer import AnalyzerHandler
@@ -440,8 +455,8 @@ def get_analyzers(
 
 @app.command("copilot-skills")
 def get_copilot_skills(
-    skill_name: Optional[str] = typer.Argument(None, help="Skill name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    skill_name: str | None = typer.Argument(None, help="Skill name"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get CoPilot skills."""
     from dtctl.resources.copilot import CoPilotHandler
@@ -464,8 +479,8 @@ def get_copilot_skills(
 @app.command("edgeconnects")
 @app.command("ec")
 def get_edgeconnects(
-    config_id: Optional[str] = typer.Argument(None, help="EdgeConnect configuration ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    config_id: str | None = typer.Argument(None, help="EdgeConnect configuration ID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get EdgeConnect configurations."""
     from dtctl.resources.edgeconnect import EdgeConnectHandler
@@ -488,8 +503,8 @@ def get_edgeconnects(
 @app.command("openpipelines")
 @app.command("op")
 def get_openpipelines(
-    pipeline_id: Optional[str] = typer.Argument(None, help="Pipeline ID"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    pipeline_id: str | None = typer.Argument(None, help="Pipeline ID"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get OpenPipeline configurations."""
     from dtctl.resources.openpipeline import OpenPipelineHandler
@@ -511,7 +526,7 @@ def get_openpipelines(
 
 @app.command("limits")
 def get_limits(
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Get account limits and quotas.
 
@@ -534,7 +549,7 @@ def get_limits(
 @app.command("environments")
 @app.command("env")
 def get_environments(
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List available environments from configuration.
 
@@ -561,7 +576,10 @@ def get_environments(
 
     if not environments:
         from rich.console import Console
-        Console().print("[yellow]No environments configured. Use 'dtctl config set-context' to add one.[/yellow]")
+
+        Console().print(
+            "[yellow]No environments configured. Use 'dtctl config set-context' to add one.[/yellow]"
+        )
         return
 
     printer.print(environments, environment_columns())
@@ -569,18 +587,20 @@ def get_environments(
 
 @app.command("policies")
 def get_policies(
-    policy_id: Optional[str] = typer.Argument(None, help="Policy UUID"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    policy_id: str | None = typer.Argument(None, help="Policy UUID"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get IAM policies.
 
     Shows policies that define permissions for groups.
     """
-    from dtctl.resources.iam import IAMHandler
     from dtctl.output import policy_columns
+    from dtctl.resources.iam import IAMHandler
 
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
@@ -599,18 +619,20 @@ def get_policies(
 
 @app.command("bindings")
 def get_bindings(
-    group: Optional[str] = typer.Option(None, "--group", "-g", help="Filter by group UUID"),
-    policy: Optional[str] = typer.Option(None, "--policy", "-p", help="Filter by policy UUID"),
+    group: str | None = typer.Option(None, "--group", "-g", help="Filter by group UUID"),
+    policy: str | None = typer.Option(None, "--policy", "-p", help="Filter by policy UUID"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List policy bindings.
 
     Shows which policies are bound to which groups.
     """
-    from dtctl.resources.iam import IAMHandler
     from dtctl.output import binding_columns
+    from dtctl.resources.iam import IAMHandler
 
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
@@ -630,18 +652,20 @@ def get_bindings(
 
 @app.command("boundaries")
 def get_boundaries(
-    boundary_id: Optional[str] = typer.Argument(None, help="Boundary UUID"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
+    boundary_id: str | None = typer.Argument(None, help="Boundary UUID"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get policy boundaries.
 
     Boundaries restrict the scope of policy permissions.
     """
-    from dtctl.resources.iam import IAMHandler
     from dtctl.output import boundary_columns
+    from dtctl.resources.iam import IAMHandler
 
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
@@ -664,8 +688,10 @@ def get_effective_permissions(
     user: bool = typer.Option(False, "--user", "-u", help="Get permissions for user"),
     group: bool = typer.Option(False, "--group", "-g", help="Get permissions for group"),
     level: str = typer.Option("account", "--level", "-l", help="Level type (account, environment)"),
-    level_id: Optional[str] = typer.Option(None, "--level-id", help="Level ID (for environment level)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    level_id: str | None = typer.Option(
+        None, "--level-id", help="Level ID (for environment level)"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Get effective permissions for a user or group.
 
@@ -679,6 +705,7 @@ def get_effective_permissions(
 
     if not user and not group:
         from rich.console import Console
+
         Console().print("[red]Error:[/red] Specify --user or --group")
         raise typer.Exit(1)
 
@@ -705,10 +732,10 @@ def get_effective_permissions(
 @app.command("lookups")
 @app.command("lt")
 def get_lookup_tables(
-    table_id: Optional[str] = typer.Argument(None, help="Lookup table ID"),
+    table_id: str | None = typer.Argument(None, help="Lookup table ID"),
     data: bool = typer.Option(False, "--data", "-d", help="Show table data (rows)"),
     limit: int = typer.Option(100, "--limit", "-n", help="Number of rows to show (with --data)"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List or get lookup tables.
 
@@ -719,8 +746,8 @@ def get_lookup_tables(
         dtctl get lt my-table-id
         dtctl get lt my-table-id --data
     """
-    from dtctl.resources.lookup import LookupTableHandler
     from dtctl.output import lookup_table_columns
+    from dtctl.resources.lookup import LookupTableHandler
 
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())

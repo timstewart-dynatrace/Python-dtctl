@@ -51,9 +51,7 @@ def cache_clear(
     prefix: str = typer.Option(
         None, "--prefix", "-p", help="Only clear entries matching this prefix"
     ),
-    expired_only: bool = typer.Option(
-        False, "--expired", "-e", help="Only clear expired entries"
-    ),
+    expired_only: bool = typer.Option(False, "--expired", "-e", help="Only clear expired entries"),
 ) -> None:
     """Clear cache entries.
 
@@ -73,9 +71,7 @@ def cache_clear(
 
 @app.command("keys")
 def cache_keys(
-    prefix: str = typer.Option(
-        None, "--prefix", "-p", help="Filter keys by prefix"
-    ),
+    prefix: str = typer.Option(None, "--prefix", "-p", help="Filter keys by prefix"),
 ) -> None:
     """List cache keys.
 

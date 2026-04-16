@@ -11,9 +11,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from dtctl.client import Client, APIError
+from dtctl.client import APIError, Client
 from dtctl.resources.base import ResourceHandler
-
 
 DocumentType = Literal["dashboard", "notebook"]
 

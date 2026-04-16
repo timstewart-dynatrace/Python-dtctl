@@ -45,7 +45,7 @@ Domain knowledge from the shared skills library:
 
 ## Current Version
 
-**0.2.3** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
+**0.2.4** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
 
 ## Key Rules Summary
 

@@ -5,21 +5,18 @@ Provides commands to render templates with variables and validate template synta
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 import yaml
 from rich.console import Console
 from rich.syntax import Syntax
 
-from dtctl.output import OutputFormat, Printer
+from dtctl.output import OutputFormat
 from dtctl.utils.template import (
     parse_set_values,
-    render_template,
     render_dict,
-    has_template_variables,
+    render_template,
 )
 
 app = typer.Typer(no_args_is_help=True)
@@ -29,12 +26,14 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
@@ -42,8 +41,10 @@ def is_plain_mode() -> bool:
 def render(
     file: Path = typer.Option(..., "--file", "-f", help="Template file to render"),
     set_values: list[str] = typer.Option([], "--set", "-s", help="Variable values (key=value)"),
-    output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file (default: stdout)"),
-    output_format: Optional[str] = typer.Option(None, "--format", help="Output format (yaml, json)"),
+    output_file: Path | None = typer.Option(
+        None, "--output", "-o", help="Output file (default: stdout)"
+    ),
+    output_format: str | None = typer.Option(None, "--format", help="Output format (yaml, json)"),
 ) -> None:
     """Render a template file with variable substitution.
 
@@ -67,7 +68,7 @@ def render(
         variables = parse_set_values(set_values)
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Determine if file is YAML or JSON
     try:
@@ -76,11 +77,12 @@ def render(
             default_format = "yaml"
         else:
             import json
+
             data = json.loads(content)
             default_format = "json"
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to parse file: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Render template
     try:
@@ -88,6 +90,7 @@ def render(
             rendered = render_dict(data, variables)
         elif isinstance(data, list):
             from dtctl.utils.template import render_list
+
             rendered = render_list(data, variables)
         elif isinstance(data, str):
             rendered = render_template(data, variables)
@@ -95,7 +98,7 @@ def render(
             rendered = data
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Format output
     fmt = output_format or default_format
@@ -103,6 +106,7 @@ def render(
         output = yaml.dump(rendered, default_flow_style=False, sort_keys=False)
     else:
         import json
+
         output = json.dumps(rendered, indent=2)
 
     # Write output
@@ -148,6 +152,7 @@ def validate(
             file_type = "YAML"
         else:
             import json
+
             json.loads(content)
             file_type = "JSON"
     except yaml.YAMLError as e:
@@ -167,19 +172,19 @@ def validate(
     # Check for common template issues
     for var in variables:
         # Check for missing default values on optional variables
-        if f"| default" not in content:
+        if "| default" not in content:
             if var.startswith("optional_"):
                 warnings.append(f"Variable '{var}' appears optional but has no default value")
 
     # Print results
     if errors:
-        console.print(f"[red]Validation failed:[/red]")
+        console.print("[red]Validation failed:[/red]")
         for error in errors:
             console.print(f"  [red]✗[/red] {error}")
         raise typer.Exit(1)
 
     if is_plain_mode():
-        print(f"valid: true")
+        print("valid: true")
         print(f"file_type: {file_type}")
         print(f"variables: {', '.join(sorted(variables)) if variables else 'none'}")
         return
@@ -194,7 +199,7 @@ def validate(
         console.print("\n[dim]No template variables found[/dim]")
 
     if warnings:
-        console.print(f"\n[yellow]Warnings:[/yellow]")
+        console.print("\n[yellow]Warnings:[/yellow]")
         for warning in warnings:
             console.print(f"  [yellow]![/yellow] {warning}")
 
@@ -269,14 +274,14 @@ def apply_template(
         variables = parse_set_values(set_values)
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Parse YAML
     try:
         data = yaml.safe_load(content)
     except yaml.YAMLError as e:
         console.print(f"[red]Error:[/red] Failed to parse YAML: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Render template
     try:
@@ -284,12 +289,13 @@ def apply_template(
             rendered = render_dict(data, variables)
         elif isinstance(data, list):
             from dtctl.utils.template import render_list
+
             rendered = render_list(data, variables)
         else:
             rendered = data
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if dry_run:
         console.print("[yellow]Dry run:[/yellow] Would apply:")
@@ -300,4 +306,5 @@ def apply_template(
 
     # Import and use apply logic
     from dtctl.commands.apply import apply_manifest
+
     apply_manifest(rendered)

@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import time
 from typing import Any
-from urllib.parse import urljoin
 
 import httpx
 from pydantic import BaseModel
@@ -78,7 +77,7 @@ class Client:
         """Close the HTTP client."""
         self._client.close()
 
-    def __enter__(self) -> "Client":
+    def __enter__(self) -> Client:
         return self
 
     def __exit__(self, *args: Any) -> None:
@@ -98,9 +97,7 @@ class Client:
                 pass
 
         # Exponential backoff
-        delay = self.retry_config.initial_delay * (
-            self.retry_config.exponential_base**attempt
-        )
+        delay = self.retry_config.initial_delay * (self.retry_config.exponential_base**attempt)
         return min(delay, self.retry_config.max_delay)
 
     def _log_request(self, method: str, url: str, **kwargs: Any) -> None:
@@ -233,9 +230,7 @@ def create_client_from_config(
     # Determine which context to use
     ctx_name = context_name or config.current_context
     if not ctx_name:
-        raise RuntimeError(
-            "No context configured. Use 'dtctl config set-context' to create one."
-        )
+        raise RuntimeError("No context configured. Use 'dtctl config set-context' to create one.")
 
     context = config.get_context(ctx_name)
     if not context:
@@ -249,7 +244,7 @@ def create_client_from_config(
             raise RuntimeError(
                 "OAuth2 authentication requires the auth module. "
                 "This context is configured for OAuth2 but the module is not available."
-            )
+            ) from None
 
         token_manager = TokenManager(
             client_id=context.oauth_client_id,
@@ -274,8 +269,7 @@ def create_client_from_config(
     token = config.get_token(context.token_ref)
     if not token:
         raise RuntimeError(
-            f"Token '{context.token_ref}' not found. "
-            "Use 'dtctl config set-credentials' to add it."
+            f"Token '{context.token_ref}' not found. Use 'dtctl config set-credentials' to add it."
         )
 
     return Client(

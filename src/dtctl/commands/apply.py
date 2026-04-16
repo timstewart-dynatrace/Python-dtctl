@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 from rich.console import Console
 
-from dtctl.client import create_client_from_config, Client
+from dtctl.client import Client, create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import Printer, OutputFormat
+from dtctl.output import OutputFormat, Printer
 from dtctl.utils.format import parse_content
 from dtctl.utils.template import parse_set_values, render_dict
 
@@ -21,30 +21,35 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 def is_dry_run() -> bool:
     """Check if dry-run mode is enabled."""
     from dtctl.cli import state
+
     return state.dry_run
 
 
@@ -184,10 +189,10 @@ def apply_document(
 def apply_resource(
     ctx: typer.Context,
     file: Path = typer.Option(..., "--file", "-f", help="Path to manifest file"),
-    set_values: Optional[list[str]] = typer.Option(
+    set_values: list[str] | None = typer.Option(
         None, "--set", help="Set template variables (key=value)"
     ),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Apply a resource configuration from file (create or update).
 

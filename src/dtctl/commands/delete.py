@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
@@ -17,18 +15,21 @@ console = Console()
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 

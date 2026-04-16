@@ -5,9 +5,8 @@ from __future__ import annotations
 import typer
 from rich import print as rprint
 
-from dtctl.client import create_client_from_config, APIError
+from dtctl.client import APIError, create_client_from_config
 from dtctl.config import load_config
-
 
 app = typer.Typer(help="Change ownership of resources", no_args_is_help=True)
 
@@ -15,18 +14,21 @@ app = typer.Typer(help="Change ownership of resources", no_args_is_help=True)
 def get_context() -> str | None:
     """Get context from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 def is_dry_run() -> bool:
     """Check if dry-run mode is enabled."""
     from dtctl.cli import state
+
     return state.dry_run
 
 
@@ -59,7 +61,9 @@ def chown_dashboard(
     doc_id = resolver.resolve_document(identifier, "dashboard")
 
     if is_dry_run():
-        rprint(f"[yellow]Would transfer ownership of dashboard '{identifier}' to '{new_owner}'[/yellow]")
+        rprint(
+            f"[yellow]Would transfer ownership of dashboard '{identifier}' to '{new_owner}'[/yellow]"
+        )
         return
 
     try:
@@ -68,11 +72,11 @@ def chown_dashboard(
             rprint(f"[green]✓[/green] Ownership transferred to '{new_owner}'")
             rprint("[dim]Note: Previous owner has lost access to this dashboard[/dim]")
         else:
-            rprint(f"[red]✗[/red] Failed to transfer ownership")
+            rprint("[red]✗[/red] Failed to transfer ownership")
             raise typer.Exit(1)
     except APIError as e:
         rprint(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 @app.command("notebook")
@@ -104,7 +108,9 @@ def chown_notebook(
     doc_id = resolver.resolve_document(identifier, "notebook")
 
     if is_dry_run():
-        rprint(f"[yellow]Would transfer ownership of notebook '{identifier}' to '{new_owner}'[/yellow]")
+        rprint(
+            f"[yellow]Would transfer ownership of notebook '{identifier}' to '{new_owner}'[/yellow]"
+        )
         return
 
     try:
@@ -113,8 +119,8 @@ def chown_notebook(
             rprint(f"[green]✓[/green] Ownership transferred to '{new_owner}'")
             rprint("[dim]Note: Previous owner has lost access to this notebook[/dim]")
         else:
-            rprint(f"[red]✗[/red] Failed to transfer ownership")
+            rprint("[red]✗[/red] Failed to transfer ownership")
             raise typer.Exit(1)
     except APIError as e:
         rprint(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None

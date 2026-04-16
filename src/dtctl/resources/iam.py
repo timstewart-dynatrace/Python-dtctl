@@ -10,7 +10,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from dtctl.client import Client
 from dtctl.resources.base import ResourceHandler
 
 
@@ -176,8 +175,7 @@ class IAMHandler(ResourceHandler[User]):
         while True:
             params = {"nextPageKey": next_page_key} if next_page_key else {}
             response = self.client.get(
-                f"{self.api_path}/accounts/groups/{group_id}/users",
-                params=params
+                f"{self.api_path}/accounts/groups/{group_id}/users", params=params
             )
             data = response.json()
 

@@ -6,7 +6,7 @@ import csv
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 import yaml
@@ -72,7 +72,7 @@ def export_all(
     output_dir: Path = typer.Option(".", "--output", "-o", help="Output directory"),
     format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml, csv)"),
     prefix: str = typer.Option("dtctl", "--prefix", "-p", help="File name prefix"),
-    include: Optional[str] = typer.Option(
+    include: str | None = typer.Option(
         None,
         "--include",
         "-i",
@@ -91,10 +91,10 @@ def export_all(
         dtctl export all -o ./backup -f json      # Export as JSON to backup dir
         dtctl export all -i workflows,slos        # Only export workflows and SLOs
     """
-    from dtctl.resources.workflow import WorkflowHandler
+    from dtctl.resources.bucket import BucketHandler
     from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
-    from dtctl.resources.bucket import BucketHandler
+    from dtctl.resources.workflow import WorkflowHandler
 
     # Determine which exports to run
     all_exports = ["workflows", "dashboards", "notebooks", "slos", "buckets"]
@@ -130,7 +130,6 @@ def export_all(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             # Workflows
             if "workflows" in exports_to_run:
                 task = progress.add_task("Exporting workflows...", total=1)
@@ -197,9 +196,11 @@ def export_all(
 @app.command("workflow")
 def export_workflow(
     identifier: str = typer.Argument(..., help="Workflow ID or title"),
-    output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
+    output_file: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
     format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
-    as_template: bool = typer.Option(False, "--as-template", "-t", help="Export as reusable template"),
+    as_template: bool = typer.Option(
+        False, "--as-template", "-t", help="Export as reusable template"
+    ),
 ) -> None:
     """Export a single workflow with its details.
 
@@ -269,7 +270,7 @@ def export_workflow(
 @app.command("dashboard")
 def export_dashboard(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
-    output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
+    output_file: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
     format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
 ) -> None:
     """Export a single dashboard with its details."""
@@ -324,7 +325,7 @@ def export_dashboard(
 @app.command("slo")
 def export_slo(
     identifier: str = typer.Argument(..., help="SLO ID or name"),
-    output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
+    output_file: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
     format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
 ) -> None:
     """Export a single SLO with its details."""
@@ -396,7 +397,7 @@ def export_query_results(
     handler = QueryHandler(client)
 
     try:
-        console.print(f"Executing query...")
+        console.print("Executing query...")
         result = handler.execute(query)
 
         records = result.get("records", [])

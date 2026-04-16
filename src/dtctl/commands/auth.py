@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -19,30 +17,34 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 @app.command("whoami")
 def whoami(
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Display current user identity.
 
@@ -127,7 +129,7 @@ def whoami(
 
 @app.command("test")
 def test_auth(
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Test authentication to the current context.
 
@@ -210,4 +212,4 @@ def test_auth(
         else:
             console.print(f"[red]✗ Authentication failed:[/red] {e}")
 
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None

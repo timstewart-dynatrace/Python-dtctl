@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from dtctl.client import Client, APIError
+from dtctl.client import Client
 
 
 class QueryHandler:
@@ -107,7 +107,7 @@ class QueryHandler:
         """
         from dtctl.utils.template import render_template
 
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             query = f.read()
 
         if variables:

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional, Literal
-
 import typer
 from rich.console import Console
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import Printer, OutputFormat
+from dtctl.output import OutputFormat, Printer
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -18,24 +16,28 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -43,8 +45,8 @@ def is_verbose() -> bool:
 @app.command("dash")
 def share_dashboard(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
-    user: Optional[str] = typer.Option(None, "--user", "-u", help="User SSO ID"),
-    group: Optional[str] = typer.Option(None, "--group", "-g", help="Group UUID"),
+    user: str | None = typer.Option(None, "--user", "-u", help="User SSO ID"),
+    group: str | None = typer.Option(None, "--group", "-g", help="Group UUID"),
     access: str = typer.Option("read", "--access", "-a", help="Access level (read or read-write)"),
 ) -> None:
     """Share a dashboard with a user or group.
@@ -68,7 +70,9 @@ def share_dashboard(
     doc_id = resolver.resolve_document(identifier, "dashboard")
 
     if handler.share(doc_id, user_id=user, group_id=group, access=access):  # type: ignore
-        console.print(f"[green]Shared dashboard with {'user ' + user if user else 'group ' + group}[/green]")
+        console.print(
+            f"[green]Shared dashboard with {'user ' + user if user else 'group ' + group}[/green]"
+        )
     else:
         console.print("[red]Failed to share dashboard[/red]")
         raise typer.Exit(1)
@@ -78,8 +82,8 @@ def share_dashboard(
 @app.command("nb")
 def share_notebook(
     identifier: str = typer.Argument(..., help="Notebook ID or name"),
-    user: Optional[str] = typer.Option(None, "--user", "-u", help="User SSO ID"),
-    group: Optional[str] = typer.Option(None, "--group", "-g", help="Group UUID"),
+    user: str | None = typer.Option(None, "--user", "-u", help="User SSO ID"),
+    group: str | None = typer.Option(None, "--group", "-g", help="Group UUID"),
     access: str = typer.Option("read", "--access", "-a", help="Access level (read or read-write)"),
 ) -> None:
     """Share a notebook with a user or group.
@@ -103,7 +107,9 @@ def share_notebook(
     doc_id = resolver.resolve_document(identifier, "notebook")
 
     if handler.share(doc_id, user_id=user, group_id=group, access=access):  # type: ignore
-        console.print(f"[green]Shared notebook with {'user ' + user if user else 'group ' + group}[/green]")
+        console.print(
+            f"[green]Shared notebook with {'user ' + user if user else 'group ' + group}[/green]"
+        )
     else:
         console.print("[red]Failed to share notebook[/red]")
         raise typer.Exit(1)
@@ -112,8 +118,8 @@ def share_notebook(
 def unshare_document(
     resource_type: str,
     identifier: str,
-    user: Optional[str],
-    group: Optional[str],
+    user: str | None,
+    group: str | None,
 ) -> None:
     """Remove sharing from a document."""
     from dtctl.resources.document import DocumentHandler
@@ -143,7 +149,7 @@ def unshare_document(
 def list_shares(
     resource_type: str = typer.Argument(..., help="Resource type (dashboard or notebook)"),
     identifier: str = typer.Argument(..., help="Resource ID or name"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """List shares for a document.
 

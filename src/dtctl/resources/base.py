@@ -11,8 +11,7 @@ from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 
-from dtctl.client import Client, APIError
-
+from dtctl.client import APIError, Client
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -40,9 +39,7 @@ class ResourceHandler(ABC, Generic[T]):
         if error.status_code == 404:
             raise ValueError(f"{self.resource_name.title()} not found")
         elif error.status_code == 403:
-            raise PermissionError(
-                f"Permission denied for {operation} on {self.resource_name}"
-            )
+            raise PermissionError(f"Permission denied for {operation} on {self.resource_name}")
         elif error.status_code == 409:
             raise ValueError(f"Conflict: {self.resource_name} already exists or version mismatch")
         else:

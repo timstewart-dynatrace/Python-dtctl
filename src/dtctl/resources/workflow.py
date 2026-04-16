@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from dtctl.client import Client, APIError
+from dtctl.client import APIError, Client
 from dtctl.resources.base import CRUDHandler
 
 
@@ -178,9 +178,7 @@ class ExecutionHandler:
         Returns:
             List of task execution dictionaries
         """
-        response = self.client.get(
-            f"{self.base_path}/executions/{execution_id}/tasks"
-        )
+        response = self.client.get(f"{self.base_path}/executions/{execution_id}/tasks")
         data = response.json()
         return data.get("results", [])
 
@@ -238,9 +236,7 @@ class ExecutionHandler:
 
             time.sleep(poll_interval)
 
-        raise TimeoutError(
-            f"Execution {execution_id} did not complete within {timeout} seconds"
-        )
+        raise TimeoutError(f"Execution {execution_id} did not complete within {timeout} seconds")
 
     def get_logs(self, execution_id: str) -> str:
         """Get execution logs.

@@ -5,14 +5,12 @@ Supports cloning workflows, dashboards, and notebooks with new names.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import Printer, OutputFormat
+from dtctl.output import OutputFormat, Printer
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -21,30 +19,35 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 def is_dry_run() -> bool:
     """Check if dry run mode is enabled."""
     from dtctl.cli import state
+
     return state.dry_run
 
 
@@ -53,9 +56,11 @@ def is_dry_run() -> bool:
 def clone_workflow(
     identifier: str = typer.Argument(..., help="Source workflow ID or name"),
     name: str = typer.Option(..., "--name", "-n", help="New workflow name"),
-    description: Optional[str] = typer.Option(None, "--description", "-d", help="New description"),
-    undeploy: bool = typer.Option(True, "--undeploy/--keep-deployed", help="Set cloned workflow to undeployed"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    description: str | None = typer.Option(None, "--description", "-d", help="New description"),
+    undeploy: bool = typer.Option(
+        True, "--undeploy/--keep-deployed", help="Set cloned workflow to undeployed"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Clone a workflow with a new name.
 
@@ -115,9 +120,9 @@ def clone_workflow(
 def clone_dashboard(
     identifier: str = typer.Argument(..., help="Source dashboard ID or name"),
     name: str = typer.Option(..., "--name", "-n", help="New dashboard name"),
-    description: Optional[str] = typer.Option(None, "--description", "-d", help="New description"),
+    description: str | None = typer.Option(None, "--description", "-d", help="New description"),
     private: bool = typer.Option(True, "--private/--public", help="Make cloned dashboard private"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Clone a dashboard with a new name.
 
@@ -148,7 +153,9 @@ def clone_dashboard(
     source_description = source.get("description", "")
 
     if is_dry_run():
-        console.print(f"[yellow]Dry run:[/yellow] Would clone dashboard '{source.get('name')}' to '{name}'")
+        console.print(
+            f"[yellow]Dry run:[/yellow] Would clone dashboard '{source.get('name')}' to '{name}'"
+        )
         return
 
     # Create the clone
@@ -171,9 +178,9 @@ def clone_dashboard(
 def clone_notebook(
     identifier: str = typer.Argument(..., help="Source notebook ID or name"),
     name: str = typer.Option(..., "--name", "-n", help="New notebook name"),
-    description: Optional[str] = typer.Option(None, "--description", "-d", help="New description"),
+    description: str | None = typer.Option(None, "--description", "-d", help="New description"),
     private: bool = typer.Option(True, "--private/--public", help="Make cloned notebook private"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Clone a notebook with a new name.
 
@@ -204,7 +211,9 @@ def clone_notebook(
     source_description = source.get("description", "")
 
     if is_dry_run():
-        console.print(f"[yellow]Dry run:[/yellow] Would clone notebook '{source.get('name')}' to '{name}'")
+        console.print(
+            f"[yellow]Dry run:[/yellow] Would clone notebook '{source.get('name')}' to '{name}'"
+        )
         return
 
     # Create the clone
@@ -226,9 +235,11 @@ def clone_notebook(
 def clone_slo(
     identifier: str = typer.Argument(..., help="Source SLO ID or name"),
     name: str = typer.Option(..., "--name", "-n", help="New SLO name"),
-    description: Optional[str] = typer.Option(None, "--description", "-d", help="New description"),
-    disabled: bool = typer.Option(True, "--disabled/--enabled", help="Create cloned SLO as disabled"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    description: str | None = typer.Option(None, "--description", "-d", help="New description"),
+    disabled: bool = typer.Option(
+        True, "--disabled/--enabled", help="Create cloned SLO as disabled"
+    ),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Clone an SLO with a new name.
 

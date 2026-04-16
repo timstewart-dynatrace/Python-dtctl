@@ -6,9 +6,10 @@ Provides in-memory caching with TTL to reduce API calls.
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -29,9 +30,9 @@ class Cache:
     Uses singleton pattern for global cache instance.
     """
 
-    _instance: "Cache | None" = None
+    _instance: Cache | None = None
 
-    def __new__(cls) -> "Cache":
+    def __new__(cls) -> Cache:
         """Singleton pattern for global cache."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
