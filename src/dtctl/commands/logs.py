@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
@@ -17,12 +15,14 @@ console = Console()
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -31,7 +31,7 @@ def get_logs(
     ctx: typer.Context,
     execution_id: str = typer.Argument(..., help="Execution ID"),
     follow: bool = typer.Option(False, "--follow", "-f", help="Follow log output"),
-    tail: Optional[int] = typer.Option(None, "--tail", "-n", help="Number of lines to show"),
+    tail: int | None = typer.Option(None, "--tail", "-n", help="Number of lines to show"),
 ) -> None:
     """View execution logs.
 

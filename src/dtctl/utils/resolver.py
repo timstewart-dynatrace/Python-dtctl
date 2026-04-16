@@ -7,7 +7,7 @@ and resolves names to IDs when needed.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from dtctl.client import Client
@@ -49,7 +49,7 @@ def is_likely_id(identifier: str) -> bool:
 class ResourceResolver:
     """Resolves resource names to IDs."""
 
-    def __init__(self, client: "Client"):
+    def __init__(self, client: Client):
         self.client = client
 
     def resolve_workflow(self, identifier: str) -> str:
@@ -82,9 +82,7 @@ class ResourceResolver:
             raise ValueError(f"No workflow found matching '{identifier}'")
         elif len(matches) > 1:
             names = [f"  - {w['title']} ({w['id']})" for w in matches[:5]]
-            raise ValueError(
-                f"Multiple workflows match '{identifier}':\n" + "\n".join(names)
-            )
+            raise ValueError(f"Multiple workflows match '{identifier}':\n" + "\n".join(names))
 
         return matches[0]["id"]
 
@@ -122,9 +120,7 @@ class ResourceResolver:
             raise ValueError(f"No document found matching '{identifier}'")
         elif len(matches) > 1:
             names = [f"  - {d['name']} ({d['id']})" for d in matches[:5]]
-            raise ValueError(
-                f"Multiple documents match '{identifier}':\n" + "\n".join(names)
-            )
+            raise ValueError(f"Multiple documents match '{identifier}':\n" + "\n".join(names))
 
         return matches[0]["id"]
 

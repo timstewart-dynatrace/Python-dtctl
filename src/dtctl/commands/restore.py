@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
@@ -19,30 +17,35 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
 def is_dry_run() -> bool:
     """Check if dry-run mode is enabled."""
     from dtctl.cli import state
+
     return state.dry_run
 
 
@@ -51,10 +54,8 @@ def is_dry_run() -> bool:
 def restore_workflow(
     identifier: str = typer.Argument(..., help="Workflow ID or name"),
     version: str = typer.Argument(..., help="Version ID to restore"),
-    force: bool = typer.Option(
-        False, "--force", "-f", help="Skip confirmation prompt"
-    ),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Restore a workflow to a previous version.
 
@@ -65,11 +66,8 @@ def restore_workflow(
         dtctl restore workflow my-workflow v1
         dtctl restore wf my-workflow abc123 --force
     """
-    from dtctl.resources.workflow import WorkflowHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = WorkflowHandler(client)
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -80,13 +78,11 @@ def restore_workflow(
 
     # Get the version to restore
     try:
-        response = client.get(
-            f"/platform/automation/v1/workflows/{workflow_id}/versions/{version}"
-        )
+        response = client.get(f"/platform/automation/v1/workflows/{workflow_id}/versions/{version}")
         version_data = response.json()
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to get version {version}: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if is_dry_run():
         console.print("[yellow]Dry run:[/yellow] Would restore workflow to version:")
@@ -97,9 +93,7 @@ def restore_workflow(
 
     # Confirm unless forced
     if not force and not is_plain_mode():
-        confirm = typer.confirm(
-            f"Restore workflow '{identifier}' to version '{version}'?"
-        )
+        confirm = typer.confirm(f"Restore workflow '{identifier}' to version '{version}'?")
         if not confirm:
             console.print("Cancelled.")
             raise typer.Exit(0)
@@ -112,7 +106,7 @@ def restore_workflow(
         result = response.json()
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to restore workflow: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not is_plain_mode():
         console.print(
@@ -130,15 +124,13 @@ def restore_workflow(
 def restore_dashboard(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
     snapshot: str = typer.Argument(..., help="Snapshot ID to restore"),
-    force: bool = typer.Option(
-        False, "--force", "-f", help="Skip confirmation prompt"
-    ),
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt"),
     create_snapshot: bool = typer.Option(
         True,
         "--create-snapshot/--no-create-snapshot",
         help="Create a snapshot before restoring (default: true)",
     ),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Restore a dashboard to a previous snapshot.
 
@@ -149,11 +141,8 @@ def restore_dashboard(
         dtctl restore dashboard my-dashboard snap123
         dtctl restore dash my-dashboard snap123 --no-create-snapshot
     """
-    from dtctl.resources.document import DocumentHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = DocumentHandler(client, doc_type="dashboard")
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -173,9 +162,7 @@ def restore_dashboard(
 
     # Confirm unless forced
     if not force and not is_plain_mode():
-        confirm = typer.confirm(
-            f"Restore dashboard '{identifier}' to snapshot '{snapshot}'?"
-        )
+        confirm = typer.confirm(f"Restore dashboard '{identifier}' to snapshot '{snapshot}'?")
         if not confirm:
             console.print("Cancelled.")
             raise typer.Exit(0)
@@ -200,7 +187,7 @@ def restore_dashboard(
         result = response.json() if response.text else {}
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to restore dashboard: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not is_plain_mode():
         console.print(
@@ -218,15 +205,13 @@ def restore_dashboard(
 def restore_notebook(
     identifier: str = typer.Argument(..., help="Notebook ID or name"),
     snapshot: str = typer.Argument(..., help="Snapshot ID to restore"),
-    force: bool = typer.Option(
-        False, "--force", "-f", help="Skip confirmation prompt"
-    ),
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt"),
     create_snapshot: bool = typer.Option(
         True,
         "--create-snapshot/--no-create-snapshot",
         help="Create a snapshot before restoring (default: true)",
     ),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """Restore a notebook to a previous snapshot.
 
@@ -237,11 +222,8 @@ def restore_notebook(
         dtctl restore notebook my-notebook snap123
         dtctl restore nb my-notebook snap123 --force
     """
-    from dtctl.resources.document import DocumentHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = DocumentHandler(client, doc_type="notebook")
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -261,9 +243,7 @@ def restore_notebook(
 
     # Confirm unless forced
     if not force and not is_plain_mode():
-        confirm = typer.confirm(
-            f"Restore notebook '{identifier}' to snapshot '{snapshot}'?"
-        )
+        confirm = typer.confirm(f"Restore notebook '{identifier}' to snapshot '{snapshot}'?")
         if not confirm:
             console.print("Cancelled.")
             raise typer.Exit(0)
@@ -288,7 +268,7 @@ def restore_notebook(
         result = response.json() if response.text else {}
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to restore notebook: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not is_plain_mode():
         console.print(

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
 
 import yaml
 from platformdirs import user_config_dir
@@ -25,9 +24,15 @@ class Context(BaseModel):
     environment: str = Field(description="Dynatrace environment URL")
     token_ref: str = Field(default="", alias="token-ref", description="Reference to a named token")
     # Optional OAuth2 fields (alternative to token_ref)
-    oauth_client_id: str = Field(default="", alias="oauth-client-id", description="OAuth2 client ID")
-    oauth_client_secret: str = Field(default="", alias="oauth-client-secret", description="OAuth2 client secret")
-    oauth_resource_urn: str = Field(default="", alias="oauth-resource-urn", description="OAuth2 resource URN")
+    oauth_client_id: str = Field(
+        default="", alias="oauth-client-id", description="OAuth2 client ID"
+    )
+    oauth_client_secret: str = Field(
+        default="", alias="oauth-client-secret", description="OAuth2 client secret"
+    )
+    oauth_resource_urn: str = Field(
+        default="", alias="oauth-resource-urn", description="OAuth2 resource URN"
+    )
 
     model_config = {"populate_by_name": True}
 

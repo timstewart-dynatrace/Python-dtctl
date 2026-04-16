@@ -36,7 +36,7 @@ Claude Code instructions are organized in the `.claude/` directory:
 
 ### Current Version
 
-**0.2.3** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
+**0.2.4** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
 
 ### Key Rules
 

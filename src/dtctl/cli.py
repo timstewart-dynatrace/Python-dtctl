@@ -7,34 +7,33 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Optional
 
 import typer
 from rich.console import Console
 
 from dtctl import __version__
+from dtctl.commands import apply as apply_cmd
+from dtctl.commands import auth as auth_cmd
+from dtctl.commands import bulk as bulk_cmd
+from dtctl.commands import cache as cache_cmd
+from dtctl.commands import chown as chown_cmd
+from dtctl.commands import clone as clone_cmd
+from dtctl.commands import completion as completion_cmd
 from dtctl.commands import config as config_cmd
-from dtctl.commands import get as get_cmd
-from dtctl.commands import describe as describe_cmd
 from dtctl.commands import create as create_cmd
 from dtctl.commands import delete as delete_cmd
-from dtctl.commands import apply as apply_cmd
+from dtctl.commands import describe as describe_cmd
 from dtctl.commands import edit as edit_cmd
-from dtctl.commands import query as query_cmd
 from dtctl.commands import execute as exec_cmd
-from dtctl.commands import logs as logs_cmd
-from dtctl.commands import share as share_cmd
-from dtctl.commands import cache as cache_cmd
-from dtctl.commands import bulk as bulk_cmd
 from dtctl.commands import export as export_cmd
-from dtctl.commands import clone as clone_cmd
+from dtctl.commands import get as get_cmd
+from dtctl.commands import history as history_cmd
+from dtctl.commands import logs as logs_cmd
+from dtctl.commands import query as query_cmd
+from dtctl.commands import restore as restore_cmd
+from dtctl.commands import share as share_cmd
 from dtctl.commands import template as template_cmd
 from dtctl.commands import wait as wait_cmd
-from dtctl.commands import history as history_cmd
-from dtctl.commands import restore as restore_cmd
-from dtctl.commands import auth as auth_cmd
-from dtctl.commands import completion as completion_cmd
-from dtctl.commands import chown as chown_cmd
 from dtctl.output import OutputFormat
 
 # Create console for rich output
@@ -54,6 +53,7 @@ please visit https://www.dynatrace.com""",
     no_args_is_help=True,
     rich_markup_mode="rich",
 )
+
 
 # Global state for shared options
 class State:
@@ -80,7 +80,7 @@ def version_callback(value: bool) -> None:
 @app.callback()
 def main(
     ctx: typer.Context,
-    context: Optional[str] = typer.Option(
+    context: str | None = typer.Option(
         None,
         "--context",
         "-c",
@@ -177,11 +177,12 @@ app.add_typer(chown_cmd.app, name="chown", help="Change ownership of resources")
 def unshare(
     resource_type: str = typer.Argument(..., help="Resource type (dashboard, notebook)"),
     identifier: str = typer.Argument(..., help="Resource ID or name"),
-    user: Optional[str] = typer.Option(None, "--user", "-u", help="User SSO ID"),
-    group: Optional[str] = typer.Option(None, "--group", "-g", help="Group UUID"),
+    user: str | None = typer.Option(None, "--user", "-u", help="User SSO ID"),
+    group: str | None = typer.Option(None, "--group", "-g", help="Group UUID"),
 ) -> None:
     """Remove sharing from a document."""
     from dtctl.commands.share import unshare_document
+
     unshare_document(resource_type, identifier, user, group)
 
 

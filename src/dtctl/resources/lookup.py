@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from dtctl.client import Client, APIError
+from dtctl.client import APIError
 from dtctl.resources.base import CRUDHandler
 
 
@@ -165,16 +165,18 @@ class LookupTableHandler(CRUDHandler[LookupTable]):
         else:
             # Generate column names
             num_cols = len(rows[0]) if rows else 0
-            header = [f"column{i+1}" for i in range(num_cols)]
+            header = [f"column{i + 1}" for i in range(num_cols)]
             data_rows = rows
 
         # Build column definitions
         columns = []
         for col_name in header:
-            columns.append({
-                "name": col_name.strip(),
-                "type": "string",  # Default to string, could be enhanced
-            })
+            columns.append(
+                {
+                    "name": col_name.strip(),
+                    "type": "string",  # Default to string, could be enhanced
+                }
+            )
 
         # Build table data
         table_data = {
@@ -244,7 +246,7 @@ class LookupTableHandler(CRUDHandler[LookupTable]):
         # Upload in batches
         batch_size = 1000
         for i in range(0, len(records), batch_size):
-            batch = records[i:i + batch_size]
+            batch = records[i : i + batch_size]
             try:
                 self.client.post(
                     f"{self.api_path}/{table_id}/data",

@@ -5,15 +5,13 @@ from __future__ import annotations
 import os
 import subprocess
 import tempfile
-from typing import Optional
 
 import typer
 from rich.console import Console
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import OutputFormat
-from dtctl.utils.format import to_yaml, to_json, parse_content
+from dtctl.utils.format import parse_content, to_json, to_yaml
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -22,12 +20,14 @@ console = Console()
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -60,7 +60,7 @@ def edit_in_editor(content: str, suffix: str = ".yaml") -> str | None:
             return None
 
         # Read modified content
-        with open(temp_path, "r") as f:
+        with open(temp_path) as f:
             modified = f.read()
 
         if modified == content:
@@ -109,7 +109,7 @@ def edit_workflow(
         data = parse_content(modified)
     except ValueError as e:
         console.print(f"[red]Error parsing modified content:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     result = handler.update(workflow_id, data)
     console.print(f"[green]Updated workflow:[/green] {result.get('id')}")
@@ -151,7 +151,7 @@ def edit_dashboard(
         data = parse_content(modified)
     except ValueError as e:
         console.print(f"[red]Error parsing modified content:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     version = document.get("version")
     result = handler.update(doc_id, data, optimistic_locking_version=version)
@@ -194,7 +194,7 @@ def edit_notebook(
         data = parse_content(modified)
     except ValueError as e:
         console.print(f"[red]Error parsing modified content:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     version = document.get("version")
     result = handler.update(doc_id, data, optimistic_locking_version=version)
@@ -236,7 +236,7 @@ def edit_slo(
         data = parse_content(modified)
     except ValueError as e:
         console.print(f"[red]Error parsing modified content:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     result = handler.update(slo_id, data)
     console.print(f"[green]Updated SLO:[/green] {result.get('id')}")

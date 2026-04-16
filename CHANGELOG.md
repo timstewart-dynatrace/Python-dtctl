@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-04-16
+
 ### Changed
 - Added shared SKILLS library references to `.claude/CLAUDE.md` for domain context (APIs, DQL, documents, IAM, lookup tables, account management)
+- Resolved all 268 ruff lint errors and reformatted 31 files
+  - Replaced `Optional[X]` with `X | None` (PEP 604)
+  - Sorted imports (I001)
+  - Added `from None` to `raise` inside `except` blocks (B904)
+  - Removed unused imports (F401) and unused variables (F841)
+  - Removed f-strings with no placeholders (F541)
+  - Removed quoted and deprecated annotations (UP037, UP035)
 
 ## [0.2.3] - 2026-01-22
 
@@ -125,7 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resources: workflows, executions, dashboards, notebooks, SLOs, settings, buckets, apps
 - Commands: get, describe, create, delete, edit, apply, exec, logs, query, share
 
-[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/timstewart-dynatrace/Python-dtctl/compare/v0.2.0...v0.2.1

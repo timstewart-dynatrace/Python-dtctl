@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dtctl.client import Client, APIError
+from dtctl.client import APIError, Client
 
 
 class LimitsHandler:
@@ -38,13 +38,15 @@ class LimitsHandler:
             response = self.client.get("/platform/automation/v1/workflows")
             data = response.json()
             total_count = data.get("totalCount", len(data.get("results", [])))
-            limits.append({
-                "name": "Workflows",
-                "current": total_count,
-                "max": None,  # API doesn't expose max
-                "unit": "workflows",
-                "percentage": None,
-            })
+            limits.append(
+                {
+                    "name": "Workflows",
+                    "current": total_count,
+                    "max": None,  # API doesn't expose max
+                    "unit": "workflows",
+                    "percentage": None,
+                }
+            )
         except APIError:
             pass
 
@@ -55,20 +57,24 @@ class LimitsHandler:
             docs = data.get("documents", [])
             dashboards = len([d for d in docs if d.get("type") == "dashboard"])
             notebooks = len([d for d in docs if d.get("type") == "notebook"])
-            limits.append({
-                "name": "Dashboards",
-                "current": dashboards,
-                "max": None,
-                "unit": "dashboards",
-                "percentage": None,
-            })
-            limits.append({
-                "name": "Notebooks",
-                "current": notebooks,
-                "max": None,
-                "unit": "notebooks",
-                "percentage": None,
-            })
+            limits.append(
+                {
+                    "name": "Dashboards",
+                    "current": dashboards,
+                    "max": None,
+                    "unit": "dashboards",
+                    "percentage": None,
+                }
+            )
+            limits.append(
+                {
+                    "name": "Notebooks",
+                    "current": notebooks,
+                    "max": None,
+                    "unit": "notebooks",
+                    "percentage": None,
+                }
+            )
         except APIError:
             pass
 
@@ -77,13 +83,15 @@ class LimitsHandler:
             response = self.client.get("/platform/classic/environment-api/v2/slo")
             data = response.json()
             total_count = data.get("totalCount", len(data.get("slo", [])))
-            limits.append({
-                "name": "SLOs",
-                "current": total_count,
-                "max": None,
-                "unit": "slos",
-                "percentage": None,
-            })
+            limits.append(
+                {
+                    "name": "SLOs",
+                    "current": total_count,
+                    "max": None,
+                    "unit": "slos",
+                    "percentage": None,
+                }
+            )
         except APIError:
             pass
 
@@ -92,13 +100,15 @@ class LimitsHandler:
             response = self.client.get("/platform/storage/management/v1/bucket-definitions")
             data = response.json()
             buckets = data.get("buckets", [])
-            limits.append({
-                "name": "Grail Buckets",
-                "current": len(buckets),
-                "max": None,
-                "unit": "buckets",
-                "percentage": None,
-            })
+            limits.append(
+                {
+                    "name": "Grail Buckets",
+                    "current": len(buckets),
+                    "max": None,
+                    "unit": "buckets",
+                    "percentage": None,
+                }
+            )
         except APIError:
             pass
 
@@ -107,13 +117,15 @@ class LimitsHandler:
             response = self.client.get("/platform/classic/environment-api/v2/hub/apps/installed")
             data = response.json()
             apps = data.get("apps", [])
-            limits.append({
-                "name": "Installed Apps",
-                "current": len(apps),
-                "max": None,
-                "unit": "apps",
-                "percentage": None,
-            })
+            limits.append(
+                {
+                    "name": "Installed Apps",
+                    "current": len(apps),
+                    "max": None,
+                    "unit": "apps",
+                    "percentage": None,
+                }
+            )
         except APIError:
             pass
 
@@ -127,13 +139,15 @@ class LimitsHandler:
                 percentage = None
                 if limit_max and limit_max > 0:
                     percentage = (limit_current / limit_max) * 100
-                limits.append({
-                    "name": limit.get("name", limit.get("type", "Unknown")),
-                    "current": limit_current,
-                    "max": limit_max,
-                    "unit": limit.get("unit", ""),
-                    "percentage": percentage,
-                })
+                limits.append(
+                    {
+                        "name": limit.get("name", limit.get("type", "Unknown")),
+                        "current": limit_current,
+                        "max": limit_max,
+                        "unit": limit.get("unit", ""),
+                        "percentage": percentage,
+                    }
+                )
         except APIError:
             pass
 
@@ -142,13 +156,15 @@ class LimitsHandler:
             response = self.client.get("/platform/classic/environment-api/v2/consumption/overview")
             data = response.json()
             for item in data.get("items", []):
-                limits.append({
-                    "name": item.get("name", "Unknown"),
-                    "current": item.get("consumed", 0),
-                    "max": item.get("quota"),
-                    "unit": item.get("unit", ""),
-                    "percentage": item.get("percentageConsumed"),
-                })
+                limits.append(
+                    {
+                        "name": item.get("name", "Unknown"),
+                        "current": item.get("consumed", 0),
+                        "max": item.get("quota"),
+                        "unit": item.get("unit", ""),
+                        "percentage": item.get("percentageConsumed"),
+                    }
+                )
         except APIError:
             pass
 

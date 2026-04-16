@@ -14,7 +14,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from dtctl.client import create_client_from_config
 from dtctl.config import load_config
-from dtctl.output import OutputFormat, Printer
+from dtctl.output import OutputFormat
 from dtctl.utils.template import render_template
 
 app = typer.Typer(no_args_is_help=True)
@@ -56,7 +56,9 @@ def is_plain_mode() -> bool:
     return state.plain
 
 
-def load_input_file(file_path: Path, variables: dict[str, str] | None = None) -> list[dict[str, Any]]:
+def load_input_file(
+    file_path: Path, variables: dict[str, str] | None = None
+) -> list[dict[str, Any]]:
     """Load data from a file (JSON, YAML, or CSV).
 
     Args:
@@ -90,11 +92,15 @@ def load_input_file(file_path: Path, variables: dict[str, str] | None = None) ->
 
 @app.command("apply")
 def bulk_apply(
-    file: Path = typer.Option(..., "--file", "-f", help="File with resource definitions (JSON or YAML)"),
+    file: Path = typer.Option(
+        ..., "--file", "-f", help="File with resource definitions (JSON or YAML)"
+    ),
     set_vars: list[str] = typer.Option(
         [], "--set", "-s", help="Set template variables (key=value)"
     ),
-    continue_on_error: bool = typer.Option(False, "--continue-on-error", help="Continue processing on errors"),
+    continue_on_error: bool = typer.Option(
+        False, "--continue-on-error", help="Continue processing on errors"
+    ),
 ) -> None:
     """Apply multiple resources from a file.
 
@@ -108,9 +114,9 @@ def bulk_apply(
         - kind: dashboard
           title: "My Dashboard"
     """
-    from dtctl.resources.workflow import WorkflowHandler
     from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
+    from dtctl.resources.workflow import WorkflowHandler
 
     if not file.exists():
         console.print(f"[red]Error:[/red] File not found: {file}")
@@ -127,7 +133,7 @@ def bulk_apply(
         records = load_input_file(file, variables)
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to read file: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not records:
         console.print("[yellow]Warning:[/yellow] No records found in file.")
@@ -170,10 +176,12 @@ def bulk_apply(
                 title = record.get("title", record.get("name", "unnamed"))
 
                 if kind not in handlers:
-                    results["failed"].append({
-                        "resource": f"{kind}/{title}",
-                        "error": f"Unknown resource kind: {kind}. Supported: {', '.join(handlers.keys())}",
-                    })
+                    results["failed"].append(
+                        {
+                            "resource": f"{kind}/{title}",
+                            "error": f"Unknown resource kind: {kind}. Supported: {', '.join(handlers.keys())}",
+                        }
+                    )
                     if not continue_on_error:
                         console.print(f"[red]Error:[/red] Unknown kind: {kind}")
                         raise typer.Exit(1)
@@ -193,17 +201,17 @@ def bulk_apply(
                             handler.update(resource_id, data)
                             results["success"].append(f"{kind}/{title} (updated)")
                         else:
-                            result = handler.create(data)
+                            handler.create(data)
                             results["success"].append(f"{kind}/{title} (created)")
                     else:
-                        result = handler.create(data)
+                        handler.create(data)
                         results["success"].append(f"{kind}/{title} (created)")
 
                 except Exception as e:
                     results["failed"].append({"resource": f"{kind}/{title}", "error": str(e)})
                     if not continue_on_error:
                         console.print(f"[red]Error:[/red] Failed to apply '{title}': {e}")
-                        raise typer.Exit(1)
+                        raise typer.Exit(1) from None
 
                 progress.advance(task)
 
@@ -221,10 +229,18 @@ def bulk_apply(
 
 @app.command("delete")
 def bulk_delete(
-    file: Path = typer.Option(..., "--file", "-f", help="File with resource identifiers (JSON, YAML, or CSV)"),
-    resource_type: str = typer.Option(..., "--type", "-t", help="Resource type (workflow, dashboard, notebook, slo)"),
-    id_field: str = typer.Option("id", "--id-field", "-i", help="Field name containing resource ID"),
-    continue_on_error: bool = typer.Option(False, "--continue-on-error", help="Continue processing on errors"),
+    file: Path = typer.Option(
+        ..., "--file", "-f", help="File with resource identifiers (JSON, YAML, or CSV)"
+    ),
+    resource_type: str = typer.Option(
+        ..., "--type", "-t", help="Resource type (workflow, dashboard, notebook, slo)"
+    ),
+    id_field: str = typer.Option(
+        "id", "--id-field", "-i", help="Field name containing resource ID"
+    ),
+    continue_on_error: bool = typer.Option(
+        False, "--continue-on-error", help="Continue processing on errors"
+    ),
     force: bool = typer.Option(False, "--force", "-F", help="Skip confirmation"),
 ) -> None:
     """Delete multiple resources from a file.
@@ -240,9 +256,9 @@ def bulk_delete(
         workflow-123
         workflow-456
     """
-    from dtctl.resources.workflow import WorkflowHandler
     from dtctl.resources.document import create_dashboard_handler, create_notebook_handler
     from dtctl.resources.slo import SLOHandler
+    from dtctl.resources.workflow import WorkflowHandler
 
     if not file.exists():
         console.print(f"[red]Error:[/red] File not found: {file}")
@@ -252,7 +268,7 @@ def bulk_delete(
         records = load_input_file(file)
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to read file: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not records:
         console.print("[yellow]Warning:[/yellow] No records found in file.")
@@ -284,7 +300,9 @@ def bulk_delete(
             if resource_id:
                 ids_to_delete.append(resource_id.strip())
             else:
-                console.print(f"[yellow]Warning:[/yellow] Record missing '{id_field}' field: {record}")
+                console.print(
+                    f"[yellow]Warning:[/yellow] Record missing '{id_field}' field: {record}"
+                )
 
         if not ids_to_delete:
             console.print("[red]Error:[/red] No valid resource IDs found.")
@@ -322,13 +340,15 @@ def bulk_delete(
                     results["failed"].append({"id": resource_id, "error": str(e)})
                     if not continue_on_error:
                         console.print(f"[red]Error:[/red] Failed to delete '{resource_id}': {e}")
-                        raise typer.Exit(1)
+                        raise typer.Exit(1) from None
 
                 progress.advance(task)
 
         # Print summary
         console.print()
-        console.print(f"[green]Successfully deleted:[/green] {len(results['success'])} {resource_type}s")
+        console.print(
+            f"[green]Successfully deleted:[/green] {len(results['success'])} {resource_type}s"
+        )
         if results["failed"]:
             console.print(f"[red]Failed:[/red] {len(results['failed'])} {resource_type}s")
             for failure in results["failed"]:
@@ -340,11 +360,15 @@ def bulk_delete(
 
 @app.command("create-workflows")
 def bulk_create_workflows(
-    file: Path = typer.Option(..., "--file", "-f", help="File with workflow definitions (JSON or YAML)"),
+    file: Path = typer.Option(
+        ..., "--file", "-f", help="File with workflow definitions (JSON or YAML)"
+    ),
     set_vars: list[str] = typer.Option(
         [], "--set", "-s", help="Set template variables (key=value)"
     ),
-    continue_on_error: bool = typer.Option(False, "--continue-on-error", help="Continue processing on errors"),
+    continue_on_error: bool = typer.Option(
+        False, "--continue-on-error", help="Continue processing on errors"
+    ),
 ) -> None:
     """Create multiple workflows from a file.
 
@@ -372,7 +396,7 @@ def bulk_create_workflows(
         records = load_input_file(file, variables)
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to read file: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not records:
         console.print("[yellow]Warning:[/yellow] No records found in file.")
@@ -420,8 +444,10 @@ def bulk_create_workflows(
                 except Exception as e:
                     results["failed"].append({"title": wf_def["title"], "error": str(e)})
                     if not continue_on_error:
-                        console.print(f"[red]Error:[/red] Failed to create '{wf_def['title']}': {e}")
-                        raise typer.Exit(1)
+                        console.print(
+                            f"[red]Error:[/red] Failed to create '{wf_def['title']}': {e}"
+                        )
+                        raise typer.Exit(1) from None
 
                 progress.advance(task)
 
@@ -439,10 +465,16 @@ def bulk_create_workflows(
 
 @app.command("exec-workflows")
 def bulk_exec_workflows(
-    file: Path = typer.Option(..., "--file", "-f", help="File with workflow identifiers (JSON, YAML, or CSV)"),
-    id_field: str = typer.Option("id", "--id-field", "-i", help="Field name containing workflow ID"),
+    file: Path = typer.Option(
+        ..., "--file", "-f", help="File with workflow identifiers (JSON, YAML, or CSV)"
+    ),
+    id_field: str = typer.Option(
+        "id", "--id-field", "-i", help="Field name containing workflow ID"
+    ),
     wait: bool = typer.Option(False, "--wait", "-w", help="Wait for execution to complete"),
-    continue_on_error: bool = typer.Option(False, "--continue-on-error", help="Continue processing on errors"),
+    continue_on_error: bool = typer.Option(
+        False, "--continue-on-error", help="Continue processing on errors"
+    ),
 ) -> None:
     """Execute multiple workflows from a file.
 
@@ -462,7 +494,7 @@ def bulk_exec_workflows(
         records = load_input_file(file)
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to read file: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not records:
         console.print("[yellow]Warning:[/yellow] No records found in file.")
@@ -478,12 +510,16 @@ def bulk_exec_workflows(
         for record in records:
             wf_id = record.get(id_field)
             if wf_id:
-                workflows_to_exec.append({
-                    "id": wf_id.strip(),
-                    "params": record.get("params", {}),
-                })
+                workflows_to_exec.append(
+                    {
+                        "id": wf_id.strip(),
+                        "params": record.get("params", {}),
+                    }
+                )
             else:
-                console.print(f"[yellow]Warning:[/yellow] Record missing '{id_field}' field: {record}")
+                console.print(
+                    f"[yellow]Warning:[/yellow] Record missing '{id_field}' field: {record}"
+                )
 
         if not workflows_to_exec:
             console.print("[red]Error:[/red] No valid workflow IDs found.")
@@ -516,7 +552,7 @@ def bulk_exec_workflows(
                     results["failed"].append({"id": wf["id"], "error": str(e)})
                     if not continue_on_error:
                         console.print(f"[red]Error:[/red] Failed to execute '{wf['id']}': {e}")
-                        raise typer.Exit(1)
+                        raise typer.Exit(1) from None
 
                 progress.advance(task)
 

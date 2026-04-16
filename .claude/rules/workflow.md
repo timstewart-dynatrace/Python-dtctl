@@ -49,7 +49,7 @@ Documentation checklist (ALL must be completed):
 
 **ALL merges to main that add features or fixes MUST increment the version number.**
 
-Current version: **0.2.3** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
+Current version: **0.2.4** (defined in `pyproject.toml` and `src/dtctl/__init__.py`)
 
 ### Semantic Versioning (SemVer)
 

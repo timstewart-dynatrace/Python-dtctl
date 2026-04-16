@@ -9,7 +9,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from dtctl.client import Client
 from dtctl.resources.base import ResourceHandler
 
 

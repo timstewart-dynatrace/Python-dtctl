@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -35,7 +34,7 @@ def get_completion_script(shell: Shell) -> str:
     # We leverage Typer's built-in completion support
 
     if shell == Shell.BASH:
-        return '''# dtctl bash completion
+        return """# dtctl bash completion
 # Add this to your ~/.bashrc or ~/.bash_profile:
 #   eval "$(dtctl completion bash)"
 # Or save to a file:
@@ -50,10 +49,10 @@ _dtctl_completion() {
 }
 
 complete -o default -F _dtctl_completion dtctl
-'''
+"""
 
     elif shell == Shell.ZSH:
-        return '''#compdef dtctl
+        return """#compdef dtctl
 # dtctl zsh completion
 # Add this to your ~/.zshrc:
 #   eval "$(dtctl completion zsh)"
@@ -86,10 +85,10 @@ _dtctl() {
 }
 
 compdef _dtctl dtctl
-'''
+"""
 
     elif shell == Shell.FISH:
-        return '''# dtctl fish completion
+        return """# dtctl fish completion
 # Add this to your ~/.config/fish/completions/dtctl.fish:
 #   dtctl completion fish > ~/.config/fish/completions/dtctl.fish
 
@@ -108,10 +107,10 @@ function _dtctl_completion
 end
 
 complete --no-files --command dtctl --arguments "(_dtctl_completion)"
-'''
+"""
 
     elif shell == Shell.POWERSHELL:
-        return '''# dtctl PowerShell completion
+        return """# dtctl PowerShell completion
 # Add this to your PowerShell profile:
 #   dtctl completion powershell | Out-String | Invoke-Expression
 # Or save to a file and dot-source it
@@ -131,7 +130,7 @@ Register-ArgumentCompleter -Native -CommandName dtctl -ScriptBlock {
     }
     $env:_DTCTL_COMPLETE = $null
 }
-'''
+"""
 
     return ""
 
@@ -232,9 +231,9 @@ def _install_completion(shell: Shell, script: str) -> None:
         # Ensure zfunc is in fpath
         if zshrc.exists():
             content = zshrc.read_text()
-            if "fpath=(~/.zfunc" not in content and '.zfunc' not in content:
+            if "fpath=(~/.zfunc" not in content and ".zfunc" not in content:
                 with open(zshrc, "a") as f:
-                    f.write('\nfpath=(~/.zfunc $fpath)\nautoload -Uz compinit && compinit\n')
+                    f.write("\nfpath=(~/.zfunc $fpath)\nautoload -Uz compinit && compinit\n")
                 console.print(f"[green]Added fpath to {zshrc}[/green]")
         console.print("[dim]Restart your shell or run: source ~/.zshrc[/dim]")
 

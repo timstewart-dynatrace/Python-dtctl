@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from dtctl.client import Client, APIError
+from dtctl.client import APIError
 from dtctl.resources.base import ResourceHandler
 
 

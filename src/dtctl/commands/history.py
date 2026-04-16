@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 
@@ -19,24 +17,28 @@ console = Console()
 def get_output_format() -> OutputFormat:
     """Get output format from CLI state."""
     from dtctl.cli import state
+
     return state.output
 
 
 def is_plain_mode() -> bool:
     """Check if plain mode is enabled."""
     from dtctl.cli import state
+
     return state.plain
 
 
 def get_context() -> str | None:
     """Get context override from CLI state."""
     from dtctl.cli import state
+
     return state.context
 
 
 def is_verbose() -> bool:
     """Check if verbose mode is enabled."""
     from dtctl.cli import state
+
     return state.verbose
 
 
@@ -45,7 +47,7 @@ def is_verbose() -> bool:
 def workflow_history(
     identifier: str = typer.Argument(..., help="Workflow ID or name"),
     limit: int = typer.Option(10, "--limit", "-n", help="Number of versions to show"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """View version history for a workflow.
 
@@ -56,11 +58,8 @@ def workflow_history(
         dtctl history workflow my-workflow
         dtctl history wf my-workflow --limit 20
     """
-    from dtctl.resources.workflow import WorkflowHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = WorkflowHandler(client)
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -79,7 +78,7 @@ def workflow_history(
         versions = data.get("results", [])
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to get workflow history: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not versions:
         console.print(f"[yellow]No version history found for workflow {identifier}[/yellow]")
@@ -108,7 +107,7 @@ def workflow_history(
 def dashboard_history(
     identifier: str = typer.Argument(..., help="Dashboard ID or name"),
     limit: int = typer.Option(10, "--limit", "-n", help="Number of snapshots to show"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """View snapshot history for a dashboard.
 
@@ -118,11 +117,8 @@ def dashboard_history(
         dtctl history dashboard my-dashboard
         dtctl history dash my-dashboard --limit 5
     """
-    from dtctl.resources.document import DocumentHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = DocumentHandler(client, doc_type="dashboard")
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -141,7 +137,7 @@ def dashboard_history(
         snapshots = data.get("snapshots", [])
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to get dashboard history: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not snapshots:
         console.print(f"[yellow]No snapshots found for dashboard {identifier}[/yellow]")
@@ -170,7 +166,7 @@ def dashboard_history(
 def notebook_history(
     identifier: str = typer.Argument(..., help="Notebook ID or name"),
     limit: int = typer.Option(10, "--limit", "-n", help="Number of snapshots to show"),
-    output: Optional[OutputFormat] = typer.Option(None, "-o", "--output"),
+    output: OutputFormat | None = typer.Option(None, "-o", "--output"),
 ) -> None:
     """View snapshot history for a notebook.
 
@@ -180,11 +176,8 @@ def notebook_history(
         dtctl history notebook my-notebook
         dtctl history nb my-notebook --limit 5
     """
-    from dtctl.resources.document import DocumentHandler
-
     config = load_config()
     client = create_client_from_config(config, get_context(), is_verbose())
-    handler = DocumentHandler(client, doc_type="notebook")
 
     # Resolve name to ID if needed
     resolver = ResourceResolver(client)
@@ -203,7 +196,7 @@ def notebook_history(
         snapshots = data.get("snapshots", [])
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to get notebook history: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if not snapshots:
         console.print(f"[yellow]No snapshots found for notebook {identifier}[/yellow]")

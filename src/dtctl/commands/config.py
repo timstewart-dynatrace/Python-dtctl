@@ -5,19 +5,16 @@ Provides commands for managing contexts, tokens, and preferences.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.table import Table
 
 from dtctl.config import (
-    Config,
+    get_config_path,
     load_config,
     save_config,
-    get_config_path,
 )
-from dtctl.output import Printer, OutputFormat
+from dtctl.output import OutputFormat, Printer
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -108,13 +105,13 @@ def use_context(
 @app.command("set-context")
 def set_context(
     name: str = typer.Argument(..., help="Context name"),
-    environment: Optional[str] = typer.Option(
+    environment: str | None = typer.Option(
         None,
         "--environment",
         "-e",
         help="Dynatrace environment URL",
     ),
-    token_ref: Optional[str] = typer.Option(
+    token_ref: str | None = typer.Option(
         None,
         "--token-ref",
         "-t",
@@ -144,7 +141,7 @@ def set_context(
         config.set_context(name, environment, token_ref)
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     if set_current:
         config.current_context = name
@@ -183,7 +180,7 @@ def delete_context(
 @app.command("set-credentials")
 def set_credentials(
     name: str = typer.Argument(..., help="Token name"),
-    token: Optional[str] = typer.Option(
+    token: str | None = typer.Option(
         None,
         "--token",
         "-t",
