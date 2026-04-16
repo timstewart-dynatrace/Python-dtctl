@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Added shared SKILLS library references to `.claude/CLAUDE.md` for domain context (APIs, DQL, documents, IAM, lookup tables, account management)
+
 ## [0.2.3] - 2026-01-22
 
 ### Added
